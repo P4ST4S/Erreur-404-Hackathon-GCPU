@@ -112,15 +112,12 @@ jobs:
             let commentBody;
 
             if (allPassed) {
-              commentBody = `## ✅ Branch Protection - All Checks Passed!
-
-Your PR meets all the requirements from [docs/pr_guide.md](../blob/main/docs/pr_guide.md):
-
-- ✅ **Branch naming** follows convention
-- ✅ **PR title** format is correct
-- ✅ **PR size** is within 400 lines limit
-
-**Ready for review!** 🚀`;
+              commentBody = '## ✅ Branch Protection - All Checks Passed!\n\n' +
+                'Your PR meets all the requirements from [docs/pr_guide.md](../blob/main/docs/pr_guide.md):\n\n' +
+                '- ✅ **Branch naming** follows convention\n' +
+                '- ✅ **PR title** format is correct\n' +
+                '- ✅ **PR size** is within 400 lines limit\n\n' +
+                '**Ready for review!** 🚀';
             } else {
               const checkmarks = {
                 'branch-naming': results['branch-naming'] === 'success' ? '✅' : '❌',
@@ -128,18 +125,14 @@ Your PR meets all the requirements from [docs/pr_guide.md](../blob/main/docs/pr_
                 'pr-size': results['pr-size'] === 'success' ? '✅' : '❌'
               };
 
-              commentBody = `## ❌ Branch Protection - Some Checks Failed
-
-Please fix the following issues:
-
-- ${checkmarks['branch-naming']} **Branch naming** - Must follow \`<type>/<issue-number>-<descriptive-slug>\`
-- ${checkmarks['pr-title']} **PR title** - Must follow \`M[n] - Issue [n]: description\`
-- ${checkmarks['pr-size']} **PR size** - Must be under 400 lines (excluding docs)
-
-### 📚 Failed Checks:
-${failedChecks.map(check => `- \`${check}\``).join('\n')}
-
-Please check the [Actions tab](../../actions) for detailed error messages and refer to [docs/pr_guide.md](../blob/main/docs/pr_guide.md) for guidance.`;
+              commentBody = '## ❌ Branch Protection - Some Checks Failed\n\n' +
+                'Please fix the following issues:\n\n' +
+                '- ' + checkmarks['branch-naming'] + ' **Branch naming** - Must follow `<type>/<issue-number>-<descriptive-slug>`\n' +
+                '- ' + checkmarks['pr-title'] + ' **PR title** - Must follow `M[n] - Issue [n]: description`\n' +
+                '- ' + checkmarks['pr-size'] + ' **PR size** - Must be under 400 lines (excluding docs)\n\n' +
+                '### 📚 Failed Checks:\n' +
+                failedChecks.map(check => '- `' + check + '`').join('\n') + '\n\n' +
+                'Please check the [Actions tab](../../actions) for detailed error messages and refer to [docs/pr_guide.md](../blob/main/docs/pr_guide.md) for guidance.';
             }
 
             // Find existing bot comments
