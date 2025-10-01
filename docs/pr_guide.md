@@ -177,7 +177,7 @@ feat(api): add /agent endpoint with Gemini integration
 
 fix(deploy): increase Cloud Run timeout to 300s
 
-docs(readme): add local devment setup guide
+docs(readme): add local development setup guide
 
 refactor(agent): extract prompt templates to separate file
 
@@ -294,7 +294,7 @@ git pull origin main
 git checkout -b feature/42-add-gemini-endpoint
 ```
 
-### 2. During devment
+### 2. During development
 
 ```bash
 # Make atomic commits regularly
