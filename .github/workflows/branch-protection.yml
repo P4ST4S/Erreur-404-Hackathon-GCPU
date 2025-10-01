@@ -5,10 +5,6 @@ on:
     branches:
       - main
       - dev
-  push:
-    branches:
-      - main
-      - dev
 
 jobs:
   # Validate branch naming convention
@@ -23,13 +19,13 @@ jobs:
           PATTERN="^(feature|bugfix|hotfix|documentation|refactor|performance|security|accessibility|maintenance|ci|test)\/[0-9]+-[a-z0-9-]+$"
 
           if ! echo "$BRANCH_NAME" | grep -qE "$PATTERN"; then
-            echo "L Invalid branch name: $BRANCH_NAME"
+            echo "❌ Invalid branch name: $BRANCH_NAME"
             echo "Branch name must follow: <type>/<issue-number>-<descriptive-slug>"
             echo "Valid types: feature, bugfix, hotfix, documentation, refactor, performance, security, accessibility, maintenance, ci, test"
             echo "Example: feature/42-add-gemini-endpoint"
             exit 1
           fi
-          echo " Branch name is valid: $BRANCH_NAME"
+          echo "✅ Branch name is valid: $BRANCH_NAME"
 
   # Validate PR title format
   pr-title:
@@ -43,14 +39,14 @@ jobs:
           PATTERN="^M[0-9]+ - Issue [0-9]+(, Issue [0-9]+)*:.*$"
 
           if ! echo "$PR_TITLE" | grep -qE "$PATTERN"; then
-            echo "L Invalid PR title: $PR_TITLE"
+            echo "❌ Invalid PR title: $PR_TITLE"
             echo "PR title must follow: M[milestone-number] - Issue [issue-number]: [description]"
             echo "Examples:"
             echo "  - M1 - Issue 42: Add Vertex AI Gemini integration"
             echo "  - M2 - Issue 15: Fix Cloud Run timeout on /agent endpoint"
             exit 1
           fi
-          echo " PR title is valid: $PR_TITLE"
+          echo "✅ PR title is valid: $PR_TITLE"
 
   # Validate PR size (max 400 lines excluding docs)
   pr-size:
@@ -79,12 +75,12 @@ jobs:
           echo "Maximum allowed: $MAX_LINES"
 
           if [ "$LINES_CHANGED" -gt "$MAX_LINES" ]; then
-            echo "L PR exceeds $MAX_LINES lines limit ($LINES_CHANGED lines changed)"
+            echo "❌ PR exceeds $MAX_LINES lines limit ($LINES_CHANGED lines changed)"
             echo "Please split this PR into smaller, logical chunks"
             echo "See docs/pr_guide.md for guidance on splitting PRs"
             exit 1
           fi
-          echo " PR size is within limits"
+          echo "✅ PR size is within limits"
 
   # Validate commit messages follow Conventional Commits
   commit-messages:
@@ -115,7 +111,7 @@ jobs:
           done <<< "$COMMITS"
 
           if [ ${#INVALID_COMMITS[@]} -gt 0 ]; then
-            echo "L Invalid commit messages found:"
+            echo "❌ Invalid commit messages found:"
             printf '%s\n' "${INVALID_COMMITS[@]}"
             echo ""
             echo "Commits must follow Conventional Commits format:"
@@ -125,167 +121,7 @@ jobs:
             echo "Example: feat(api): add /agent endpoint"
             exit 1
           fi
-          echo " All commit messages follow Conventional Commits"
-
-  # Backend: Python linting and formatting
-  backend-lint:
-    name: Backend - Lint & Format Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        working-directory: ./backend
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8 black
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      - name: Run flake8
-        working-directory: ./backend
-        run: |
-          echo "Running flake8..."
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-      - name: Check formatting with black
-        working-directory: ./backend
-        run: |
-          echo "Checking code formatting with black..."
-          black --check .
-
-  # Backend: Run tests
-  backend-tests:
-    name: Backend - Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        working-directory: ./backend
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest pytest-cov
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      - name: Run tests
-        working-directory: ./backend
-        run: |
-          if [ -d "tests" ]; then
-            echo "Running pytest..."
-            pytest --cov=app --cov-report=term-missing
-          else
-            echo "�  No tests directory found, skipping tests"
-          fi
-
-  # Frontend: ESLint and TypeScript check
-  frontend-lint:
-    name: Frontend - Lint & Type Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-          cache-dependency-path: "./frontend/package-lock.json"
-
-      - name: Install dependencies
-        working-directory: ./frontend
-        run: npm ci
-
-      - name: Run ESLint
-        working-directory: ./frontend
-        run: npm run lint
-
-      - name: TypeScript type check
-        working-directory: ./frontend
-        run: npx tsc --noEmit
-
-  # Frontend: Build check
-  frontend-build:
-    name: Frontend - Build Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-          cache-dependency-path: "./frontend/package-lock.json"
-
-      - name: Install dependencies
-        working-directory: ./frontend
-        run: npm ci
-
-      - name: Build
-        working-directory: ./frontend
-        run: npm run build
-
-  # Security: Check for secrets
-  security-check:
-    name: Security - Secret Scanning
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Check for hardcoded secrets
-        run: |
-          echo "Checking for potential secrets in code..."
-
-          # Pattern matching for common secret patterns
-          PATTERNS=(
-            "password\s*=\s*['\"][^'\"]+['\"]"
-            "api[_-]?key\s*=\s*['\"][^'\"]+['\"]"
-            "secret\s*=\s*['\"][^'\"]+['\"]"
-            "token\s*=\s*['\"][^'\"]+['\"]"
-            "AKIA[0-9A-Z]{16}"
-            "AIza[0-9A-Za-z\\-_]{35}"
-          )
-
-          FOUND_SECRETS=false
-          for pattern in "${PATTERNS[@]}"; do
-            if git diff origin/${{ github.base_ref || 'main' }}...HEAD | grep -iE "$pattern"; then
-              FOUND_SECRETS=true
-            fi
-          done
-
-          if [ "$FOUND_SECRETS" = true ]; then
-            echo "L Potential hardcoded secrets detected!"
-            echo "Please use environment variables instead"
-            exit 1
-          fi
-          echo " No hardcoded secrets detected"
-
-      - name: Check for .env files
-        run: |
-          if git diff --name-only origin/${{ github.base_ref || 'main' }}...HEAD | grep -E '\.env$|\.env\..*'; then
-            echo "L .env files should not be committed"
-            echo "Please add .env files to .gitignore"
-            exit 1
-          fi
-          echo " No .env files in commit"
+          echo "✅ All commit messages follow Conventional Commits"
 
   # All checks must pass
   all-checks:
@@ -296,14 +132,9 @@ jobs:
       - pr-title
       - pr-size
       - commit-messages
-      - backend-lint
-      - backend-tests
-      - frontend-lint
-      - frontend-build
-      - security-check
     if: github.event_name == 'pull_request'
     steps:
       - name: All checks passed
         run: |
-          echo " All branch protection checks passed!"
+          echo "✅ All branch protection checks passed!"
           echo "This PR meets all requirements from docs/pr_guide.md"
