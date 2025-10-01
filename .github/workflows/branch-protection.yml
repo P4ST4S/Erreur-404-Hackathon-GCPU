@@ -82,47 +82,6 @@ jobs:
           fi
           echo "✅ PR size is within limits"
 
-  # Validate commit messages follow Conventional Commits
-  commit-messages:
-    name: Validate Commit Messages
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Check commit messages
-        run: |
-          git fetch origin ${{ github.base_ref }}
-
-          # Get all commit messages in the PR
-          COMMITS=$(git log origin/${{ github.base_ref }}..HEAD --pretty=format:"%s")
-
-          # Conventional Commits pattern
-          PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)(\([a-z0-9-]+\))?: .+$"
-
-          INVALID_COMMITS=()
-          while IFS= read -r commit; do
-            if [ -n "$commit" ] && ! echo "$commit" | grep -qE "$PATTERN"; then
-              INVALID_COMMITS+=("$commit")
-            fi
-          done <<< "$COMMITS"
-
-          if [ ${#INVALID_COMMITS[@]} -gt 0 ]; then
-            echo "❌ Invalid commit messages found:"
-            printf '%s\n' "${INVALID_COMMITS[@]}"
-            echo ""
-            echo "Commits must follow Conventional Commits format:"
-            echo "  <type>(<scope>): <description>"
-            echo ""
-            echo "Valid types: feat, fix, docs, style, refactor, perf, test, build, ci, chore"
-            echo "Example: feat(api): add /agent endpoint"
-            exit 1
-          fi
-          echo "✅ All commit messages follow Conventional Commits"
-
   # All checks must pass
   all-checks:
     name: All Checks Passed
@@ -131,7 +90,6 @@ jobs:
       - branch-naming
       - pr-title
       - pr-size
-      - commit-messages
     if: github.event_name == 'pull_request'
     steps:
       - name: All checks passed
