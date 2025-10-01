@@ -1,0 +1,23 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hackathon-backend
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: "10"
+    spec:
+      containers:
+        - image: gcr.io/REPLACE_PROJECT_ID/hackathon-backend:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: GCP_PROJECT_ID
+              value: "REPLACE_PROJECT_ID"
+            - name: VERTEX_AI_LOCATION
+              value: "europe-west1"
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "1"
