@@ -86,7 +86,7 @@
 - [ ] My code generates no warnings
 - [ ] Less than 400 lines modified (excluding documentation) ✨
 - [ ] Added dependencies are necessary and documented
-- [ ] Branch is up to date with `main`/`develop`
+- [ ] Branch is up to date with `main`/`dev`
 - [ ] No merge conflicts
 
 ## 🔗 Additional Resources
@@ -101,8 +101,6 @@
 <!-- Specific aspects to review -->
 
 -
--
+- ***
 
----
-
-**📖 See the [Pull Request Guide](docs/pullrequest_guide.md) for more details on conventions.**
+  **📖 See the [Pull Request Guide](docs/pullrequest_guide.md) for more details on conventions.**
