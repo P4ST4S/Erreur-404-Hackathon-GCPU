@@ -90,9 +90,88 @@ jobs:
       - branch-naming
       - pr-title
       - pr-size
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && always()
+    permissions:
+      pull-requests: write
     steps:
-      - name: All checks passed
-        run: |
-          echo "✅ All branch protection checks passed!"
-          echo "This PR meets all requirements from docs/pr_guide.md"
+      - name: Check results and post comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const results = {
+              'branch-naming': '${{ needs.branch-naming.result }}',
+              'pr-title': '${{ needs.pr-title.result }}',
+              'pr-size': '${{ needs.pr-size.result }}'
+            };
+
+            const allPassed = Object.values(results).every(r => r === 'success');
+            const failedChecks = Object.entries(results)
+              .filter(([_, result]) => result === 'failure')
+              .map(([name, _]) => name);
+
+            let commentBody;
+
+            if (allPassed) {
+              commentBody = `## ✅ Branch Protection - All Checks Passed!
+
+Your PR meets all the requirements from [docs/pr_guide.md](../blob/main/docs/pr_guide.md):
+
+- ✅ **Branch naming** follows convention
+- ✅ **PR title** format is correct
+- ✅ **PR size** is within 400 lines limit
+
+**Ready for review!** 🚀`;
+            } else {
+              const checkmarks = {
+                'branch-naming': results['branch-naming'] === 'success' ? '✅' : '❌',
+                'pr-title': results['pr-title'] === 'success' ? '✅' : '❌',
+                'pr-size': results['pr-size'] === 'success' ? '✅' : '❌'
+              };
+
+              commentBody = `## ❌ Branch Protection - Some Checks Failed
+
+Please fix the following issues:
+
+- ${checkmarks['branch-naming']} **Branch naming** - Must follow \`<type>/<issue-number>-<descriptive-slug>\`
+- ${checkmarks['pr-title']} **PR title** - Must follow \`M[n] - Issue [n]: description\`
+- ${checkmarks['pr-size']} **PR size** - Must be under 400 lines (excluding docs)
+
+### 📚 Failed Checks:
+${failedChecks.map(check => `- \`${check}\``).join('\n')}
+
+Please check the [Actions tab](../../actions) for detailed error messages and refer to [docs/pr_guide.md](../blob/main/docs/pr_guide.md) for guidance.`;
+            }
+
+            // Find existing bot comments
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Branch Protection')
+            );
+
+            // Update existing comment or create new one
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }
+
+            // Fail the job if any check failed
+            if (!allPassed) {
+              core.setFailed('One or more branch protection checks failed');
+            }
