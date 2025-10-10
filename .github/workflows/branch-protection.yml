@@ -1,4 +1,4 @@
-name: Branch Protection CI
+name: Branch Protection CI v2
 
 on:
   pull_request:
