@@ -1,0 +1,172 @@
+name: Branch Protection CI v2
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+jobs:
+  # Validate branch naming convention
+  branch-naming:
+    name: Validate Branch Name
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check branch name
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          # Allow the literal 'dev' branch, or branches matching the conventional pattern
+          PATTERN="^(dev$|(feature|bugfix|hotfix|documentation|refactor|performance|security|accessibility|maintenance|ci|test)\/[0-9]+-[a-z0-9-]+)$"
+
+          if ! echo "$BRANCH_NAME" | grep -qE "$PATTERN"; then
+            echo "❌ Invalid branch name: $BRANCH_NAME"
+            echo "Branch name must follow: <type>/<issue-number>-<descriptive-slug>"
+            echo "Valid types: feature, bugfix, hotfix, documentation, refactor, performance, security, accessibility, maintenance, ci, test"
+            echo "Example: feature/42-add-gemini-endpoint"
+            exit 1
+          fi
+          echo "✅ Branch name is valid: $BRANCH_NAME"
+
+  # Validate PR title format
+  pr-title:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check PR title format
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PATTERN="^M[0-9]+ - Issue [0-9]+(, Issue [0-9]+)*:.*$"
+
+          if ! echo "$PR_TITLE" | grep -qE "$PATTERN"; then
+            echo "❌ Invalid PR title: $PR_TITLE"
+            echo "PR title must follow: M[milestone-number] - Issue [issue-number]: [description]"
+            echo "Examples:"
+            echo "  - M1 - Issue 42: Add Vertex AI Gemini integration"
+            echo "  - M2 - Issue 15: Fix Cloud Run timeout on /agent endpoint"
+            exit 1
+          fi
+          echo "✅ PR title is valid: $PR_TITLE"
+
+  # Validate PR size (max 400 lines excluding docs)
+  pr-size:
+    name: Validate PR Size
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR size
+        run: |
+          git fetch origin ${{ github.base_ref }}
+
+          # Count lines changed excluding documentation files
+          LINES_CHANGED=$(git diff origin/${{ github.base_ref }}...HEAD --stat | \
+            grep -v '\.md$' | \
+            grep -v '^docs/' | \
+            awk '{sum += $1 + $2} END {print sum+0}')
+
+          MAX_LINES=400
+
+          echo "Lines changed (excluding docs): $LINES_CHANGED"
+          echo "Maximum allowed: $MAX_LINES"
+
+          if [ "$LINES_CHANGED" -gt "$MAX_LINES" ]; then
+            echo "❌ PR exceeds $MAX_LINES lines limit ($LINES_CHANGED lines changed)"
+            echo "Please split this PR into smaller, logical chunks"
+            echo "See docs/pr_guide.md for guidance on splitting PRs"
+            exit 1
+          fi
+          echo "✅ PR size is within limits"
+
+  # All checks must pass
+  all-checks:
+    name: All Checks Passed
+    runs-on: ubuntu-latest
+    needs:
+      - branch-naming
+      - pr-title
+      - pr-size
+    if: github.event_name == 'pull_request' && always()
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Check results and post comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const results = {
+              'branch-naming': '${{ needs.branch-naming.result }}',
+              'pr-title': '${{ needs.pr-title.result }}',
+              'pr-size': '${{ needs.pr-size.result }}'
+            };
+
+            const allPassed = Object.values(results).every(r => r === 'success');
+            const failedChecks = Object.entries(results)
+              .filter(([_, result]) => result === 'failure')
+              .map(([name, _]) => name);
+
+            let commentBody;
+
+            if (allPassed) {
+              commentBody = '## ✅ Branch Protection - All Checks Passed!\n\n' +
+                'Your PR meets all the requirements from [docs/pr_guide.md](../blob/main/docs/pr_guide.md):\n\n' +
+                '- ✅ **Branch naming** follows convention\n' +
+                '- ✅ **PR title** format is correct\n' +
+                '- ✅ **PR size** is within 400 lines limit\n\n' +
+                '**Ready for review!** 🚀';
+            } else {
+              const checkmarks = {
+                'branch-naming': results['branch-naming'] === 'success' ? '✅' : '❌',
+                'pr-title': results['pr-title'] === 'success' ? '✅' : '❌',
+                'pr-size': results['pr-size'] === 'success' ? '✅' : '❌'
+              };
+
+              commentBody = '## ❌ Branch Protection - Some Checks Failed\n\n' +
+                'Please fix the following issues:\n\n' +
+                '- ' + checkmarks['branch-naming'] + ' **Branch naming** - Must follow `<type>/<issue-number>-<descriptive-slug>`\n' +
+                '- ' + checkmarks['pr-title'] + ' **PR title** - Must follow `M[n] - Issue [n]: description`\n' +
+                '- ' + checkmarks['pr-size'] + ' **PR size** - Must be under 400 lines (excluding docs)\n\n' +
+                '### 📚 Failed Checks:\n' +
+                failedChecks.map(check => '- `' + check + '`').join('\n') + '\n\n' +
+                'Please check the [Actions tab](../../actions) for detailed error messages and refer to [docs/pr_guide.md](../blob/main/docs/pr_guide.md) for guidance.';
+            }
+
+            // Find existing bot comments
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Branch Protection')
+            );
+
+            // Update existing comment or create new one
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }
+
+            // Fail the job if any check failed
+            if (!allPassed) {
+              core.setFailed('One or more branch protection checks failed');
+            }
