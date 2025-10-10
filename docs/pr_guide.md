@@ -62,7 +62,7 @@ feature/add-stuff        # Missing issue number, vague description
 ### Creating a Branch
 
 ```bash
-# From main/develop
+# From main/dev
 git checkout main
 git pull origin main
 git checkout -b feature/42-add-gemini-endpoint
@@ -294,7 +294,7 @@ git pull origin main
 git checkout -b feature/42-add-gemini-endpoint
 ```
 
-### 2. During Development
+### 2. During development
 
 ```bash
 # Make atomic commits regularly
