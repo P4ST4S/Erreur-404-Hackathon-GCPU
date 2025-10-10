@@ -16,7 +16,8 @@ jobs:
       - name: Check branch name
         run: |
           BRANCH_NAME="${{ github.head_ref }}"
-          PATTERN="^(feature|bugfix|hotfix|documentation|refactor|performance|security|accessibility|maintenance|ci|test)\/[0-9]+-[a-z0-9-]+$"
+          # Allow the literal 'dev' branch, or branches matching the conventional pattern
+          PATTERN="^(dev$|(feature|bugfix|hotfix|documentation|refactor|performance|security|accessibility|maintenance|ci|test)\/[0-9]+-[a-z0-9-]+)$"
 
           if ! echo "$BRANCH_NAME" | grep -qE "$PATTERN"; then
             echo "❌ Invalid branch name: $BRANCH_NAME"
