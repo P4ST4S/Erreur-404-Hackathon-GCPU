@@ -1,32 +1,18 @@
-import { useState } from 'react';
-import { Header } from './Header';
-import { Sidebar } from './Sidebar';
-import { Footer } from './Footer';
+import { useState } from "react";
+import { Header } from "./Header";
+import { Sidebar } from "./Sidebar";
+import { Footer } from "./Footer";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet';
-import {
-  Home,
-  LayoutDashboard,
-  FolderKanban,
-  Users,
-  Settings,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-
-/**
- * Mobile navigation menu items (same as sidebar)
- */
-const mobileNavItems = [
-  { label: 'Home', href: '#home', icon: Home },
-  { label: 'Dashboard', href: '#dashboard', icon: LayoutDashboard },
-  { label: 'Projects', href: '#projects', icon: FolderKanban },
-  { label: 'Team', href: '#team', icon: Users },
-  { label: 'Settings', href: '#settings', icon: Settings },
-];
+} from "@/components/ui/sheet";
+import { ShieldCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { NavLink } from "@/components/navigation/NavLink";
+import { navigationItems } from "@/lib/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 /**
  * Layout component props interface
@@ -59,14 +45,19 @@ interface LayoutProps {
  */
 export function Layout({ children, className }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   /**
-   * Close mobile menu and navigate to href
+   * Close mobile menu after navigation
    */
   const handleMobileNavClick = () => {
     setMobileMenuOpen(false);
-    // Navigation will happen via anchor link
   };
+
+  // Filter navigation items based on authentication
+  const mobileNavItems = navigationItems.filter(
+    (item) => !item.protected || isAuthenticated
+  );
 
   return (
     <div className="relative flex min-h-screen flex-col">
@@ -75,27 +66,26 @@ export function Layout({ children, className }: LayoutProps) {
         <SheetContent side="left" className="w-64 p-0">
           <SheetHeader className="border-b p-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-md bg-primary" />
-              <SheetTitle>Menu</SheetTitle>
+              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-md">
+                <ShieldCheck className="text-primary-foreground h-5 w-5" />
+              </div>
+              <SheetTitle>MedicAnonym</SheetTitle>
             </div>
           </SheetHeader>
 
           {/* Mobile navigation items */}
           <nav className="flex flex-col gap-1 p-4">
-            {mobileNavItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={handleMobileNavClick}
-                  className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                >
-                  <Icon className="h-5 w-5" />
-                  <span>{item.label}</span>
-                </a>
-              );
-            })}
+            {mobileNavItems.map((item) => (
+              <NavLink
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                icon={item.icon}
+                variant="mobile"
+                onClick={handleMobileNavClick}
+                description={item.description}
+              />
+            ))}
           </nav>
         </SheetContent>
       </Sheet>
@@ -111,8 +101,8 @@ export function Layout({ children, className }: LayoutProps) {
         {/* Main content */}
         <main
           className={cn(
-            'flex-1 overflow-y-auto',
-            'container mx-auto px-4 py-8',
+            "flex-1 overflow-y-auto",
+            "container mx-auto px-4 py-8",
             className
           )}
         >
