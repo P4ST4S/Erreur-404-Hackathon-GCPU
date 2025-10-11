@@ -5,23 +5,12 @@ import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /**
- * Sheet root component - wrapper for sheet dialog
+ * Re-export Radix UI Sheet primitives for consistent API
+ * These are direct pass-throughs without additional styling
  */
 const Sheet = SheetPrimitive.Root;
-
-/**
- * Sheet trigger - element that opens the sheet
- */
 const SheetTrigger = SheetPrimitive.Trigger;
-
-/**
- * Sheet close - element that closes the sheet
- */
 const SheetClose = SheetPrimitive.Close;
-
-/**
- * Sheet portal - renders sheet in a portal outside DOM hierarchy
- */
 const SheetPortal = SheetPrimitive.Portal;
 
 /**
