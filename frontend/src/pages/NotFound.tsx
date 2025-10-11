@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FileQuestion, Home, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -7,6 +7,17 @@ import { Button } from '@/components/ui/button';
  * Displayed when user navigates to a non-existent route
  */
 export function NotFound() {
+  const navigate = useNavigate();
+
+  const handleGoBack = () => {
+    // Only go back if there's history, otherwise go to home
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="mx-auto max-w-md text-center">
@@ -33,11 +44,9 @@ export function NotFound() {
               Go to Homepage
             </Link>
           </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link to={-1 as any}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Go Back
-            </Link>
+          <Button variant="outline" size="lg" onClick={handleGoBack}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Go Back
           </Button>
         </div>
 
