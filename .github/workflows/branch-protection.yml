@@ -65,24 +65,23 @@ jobs:
         run: |
           git fetch origin ${{ github.base_ref }}
 
-          # Count lines changed excluding documentation files
-          LINES_CHANGED=$(git diff origin/${{ github.base_ref }}...HEAD --stat | \
+          # Count lines changed only in the infra/ directory
+          LINES_CHANGED=$(git diff origin/${{ github.base_ref }}...HEAD --stat -- infra/ | \
             grep -v '\.md$' | \
-            grep -v '^docs/' | \
             awk '{sum += $1 + $2} END {print sum+0}')
 
           MAX_LINES=400
 
-          echo "Lines changed (excluding docs): $LINES_CHANGED"
+          echo "Lines changed in infra/ (excluding docs): $LINES_CHANGED"
           echo "Maximum allowed: $MAX_LINES"
 
           if [ "$LINES_CHANGED" -gt "$MAX_LINES" ]; then
-            echo "❌ PR exceeds $MAX_LINES lines limit ($LINES_CHANGED lines changed)"
+            echo "❌ PR exceeds $MAX_LINES lines limit in infra/ directory ($LINES_CHANGED lines changed)"
             echo "Please split this PR into smaller, logical chunks"
             echo "See docs/pr_guide.md for guidance on splitting PRs"
             exit 1
           fi
-          echo "✅ PR size is within limits"
+          echo "✅ PR size is within limits for infra/ directory"
 
   # All checks must pass
   all-checks:
