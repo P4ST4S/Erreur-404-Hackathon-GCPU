@@ -9,7 +9,9 @@
  * Custom theme configuration using Tailwind v4 @theme directive
  */
 @theme {
-  /* CSS variables for light mode */
+  /* Tailwind v4 CSS-first configuration */
+
+  /* Color palette using HSL values */
   --color-background: 0 0% 100%;
   --color-foreground: 222.2 84% 4.9%;
   --color-card: 0 0% 100%;
@@ -30,7 +32,28 @@
   --color-input: 214.3 31.8% 91.4%;
   --color-ring: 221.2 83.2% 53.3%;
 
+  /* Border radius tokens */
   --radius: 0.5rem;
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
+
+  /* Container configuration */
+  --breakpoint-2xl: 1400px;
+
+  /* Animations - keyframes for accordion */
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
 /**
