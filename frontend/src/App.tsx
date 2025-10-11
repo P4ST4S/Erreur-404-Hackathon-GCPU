@@ -1,6 +1,6 @@
-import { RouterProvider } from 'react-router-dom';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { router } from '@/router';
+import { RouterProvider } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { router } from "@/router";
 
 /**
  * Main application component
@@ -13,11 +13,11 @@ import { router } from '@/router';
  * - Responsive navigation with Header and Sidebar
  */
 function App() {
-  return (
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <RouterProvider router={router} />
+        </AuthProvider>
+    );
 }
 
 export default App;

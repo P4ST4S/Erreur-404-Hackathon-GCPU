@@ -1,5 +1,5 @@
-import { ThemeProvider as NextThemesProvider } from 'next-themes';
-import { type ThemeProviderProps } from 'next-themes';
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { type ThemeProviderProps } from "next-themes";
 
 /**
  * Theme provider component wrapper
@@ -17,5 +17,5 @@ import { type ThemeProviderProps } from 'next-themes';
  * </ThemeProvider>
  */
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+    return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }
