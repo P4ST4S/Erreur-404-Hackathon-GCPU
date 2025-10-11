@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { ShieldCheck, Mail, Lock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -52,50 +53,28 @@ export function Login() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-4">
                         {/* Email field */}
-                        <div className="space-y-2">
-                            <label
-                                htmlFor="email"
-                                className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                Email Address
-                            </label>
-                            <div className="relative">
-                                <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                                <input
-                                    id="email"
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                    className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 pl-10 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                                    placeholder="doctor@hospital.com"
-                                />
-                            </div>
-                        </div>
+                        <FormField
+                            id="email"
+                            label="Email Address"
+                            type="email"
+                            icon={Mail}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="doctor@hospital.com"
+                            required
+                        />
 
                         {/* Password field */}
-                        <div className="space-y-2">
-                            <label
-                                htmlFor="password"
-                                className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                Password
-                            </label>
-                            <div className="relative">
-                                <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                                <input
-                                    id="password"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
-                                    required
-                                    className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 pl-10 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                                    placeholder="Enter your password"
-                                />
-                            </div>
-                        </div>
+                        <FormField
+                            id="password"
+                            label="Password"
+                            type="password"
+                            icon={Lock}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Enter your password"
+                            required
+                        />
                     </div>
 
                     {/* Error message */}
