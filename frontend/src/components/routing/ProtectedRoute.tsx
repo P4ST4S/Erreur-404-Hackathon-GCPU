@@ -5,8 +5,8 @@ import { useAuth } from "@/hooks/useAuth";
  * ProtectedRoute component props
  */
 interface ProtectedRouteProps {
-    /** Child components to render if authenticated */
-    children: React.ReactNode;
+  /** Child components to render if authenticated */
+  children: React.ReactNode;
 }
 
 /**
@@ -22,13 +22,13 @@ interface ProtectedRouteProps {
  * } />
  */
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-    const { isAuthenticated } = useAuth();
-    const location = useLocation();
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
 
-    if (!isAuthenticated) {
-        // Redirect to login page with return URL
-        return <Navigate to="/login" state={{ from: location }} replace />;
-    }
+  if (!isAuthenticated) {
+    // Redirect to login page with return URL
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-    return <>{children}</>;
+  return <>{children}</>;
 }

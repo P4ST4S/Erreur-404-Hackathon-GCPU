@@ -13,11 +13,11 @@ import { router } from "@/router";
  * - Responsive navigation with Header and Sidebar
  */
 function App() {
-    return (
-        <AuthProvider>
-            <RouterProvider router={router} />
-        </AuthProvider>
-    );
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
 
 export default App;

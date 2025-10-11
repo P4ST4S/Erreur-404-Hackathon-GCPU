@@ -13,5 +13,5 @@ import { twMerge } from "tailwind-merge";
  * cn('text-red-500', condition && 'text-blue-500') // Conditionally applies classes
  */
 export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs));
 }

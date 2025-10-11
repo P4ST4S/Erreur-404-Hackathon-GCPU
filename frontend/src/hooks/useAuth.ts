@@ -11,11 +11,11 @@ import { AuthContext } from "@/contexts/AuthContext";
  * const { isAuthenticated, user, login, logout } = useAuth();
  */
 export function useAuth() {
-    const context = useContext(AuthContext);
+  const context = useContext(AuthContext);
 
-    if (context === undefined) {
-        throw new Error("useAuth must be used within an AuthProvider");
-    }
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
 
-    return context;
+  return context;
 }

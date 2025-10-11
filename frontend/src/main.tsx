@@ -6,11 +6,11 @@ import "./globals.css";
 import App from "./App.tsx";
 
 createRoot(document.getElementById("root")!).render(
-    <StrictMode>
-        <ErrorBoundary>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-                <App />
-            </ThemeProvider>
-        </ErrorBoundary>
-    </StrictMode>
+  <StrictMode>
+    <ErrorBoundary>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <App />
+      </ThemeProvider>
+    </ErrorBoundary>
+  </StrictMode>
 );
