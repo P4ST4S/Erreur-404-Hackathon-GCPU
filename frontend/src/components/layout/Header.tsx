@@ -1,7 +1,9 @@
-import { Menu, Moon, Sun } from 'lucide-react';
+import { Menu, Moon, Sun, ShieldCheck, LogOut } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * Header component props interface
@@ -12,7 +14,8 @@ interface HeaderProps {
 }
 
 /**
- * Header component with navigation and theme toggle
+ * Minimal header component with branding and user actions
+ * Navigation is handled by the Sidebar component
  * Responsive design with mobile menu button
  *
  * @param onMenuClick - Function called when menu button is clicked (mobile)
@@ -22,6 +25,8 @@ interface HeaderProps {
  */
 export function Header({ onMenuClick }: HeaderProps) {
   const { theme, setTheme } = useTheme();
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
 
   /**
    * Toggle between light and dark theme
@@ -30,9 +35,17 @@ export function Header({ onMenuClick }: HeaderProps) {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
+  /**
+   * Handle logout
+   */
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4">
+      <div className="flex h-16 items-center justify-between px-4">
         {/* Left section: Mobile menu button + Logo */}
         <div className="flex items-center gap-4">
           {/* Mobile menu button - visible on small screens */}
@@ -47,41 +60,13 @@ export function Header({ onMenuClick }: HeaderProps) {
           </Button>
 
           {/* Logo / Brand */}
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-md bg-primary" />
-            <span className="hidden font-bold sm:inline-block">
-              Your App
-            </span>
-          </div>
+          <Link to="/" className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
+              <ShieldCheck className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="font-bold">MedAnonymize</span>
+          </Link>
         </div>
-
-        {/* Center section: Navigation links (desktop) */}
-        <nav className="hidden items-center gap-6 md:flex">
-          <a
-            href="#dashboard"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Dashboard
-          </a>
-          <a
-            href="#projects"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Projects
-          </a>
-          <a
-            href="#team"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Team
-          </a>
-          <a
-            href="#settings"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Settings
-          </a>
-        </nav>
 
         {/* Right section: Theme toggle + User actions */}
         <div className="flex items-center gap-2">
@@ -96,11 +81,34 @@ export function Header({ onMenuClick }: HeaderProps) {
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </Button>
 
-          {/* User profile button (placeholder) */}
-          <Separator orientation="vertical" className="h-6" />
-          <Button variant="ghost" size="sm">
-            Account
-          </Button>
+          {/* User profile and logout */}
+          {isAuthenticated ? (
+            <>
+              <Separator orientation="vertical" className="h-6" />
+              <div className="flex items-center gap-2">
+                <span className="hidden text-sm text-muted-foreground sm:inline">
+                  {user?.name}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  title="Logout"
+                  className="gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Logout</span>
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <Separator orientation="vertical" className="h-6" />
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/login">Sign In</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>
