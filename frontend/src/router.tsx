@@ -11,10 +11,16 @@ import { NotFound } from '@/pages/NotFound';
 /**
  * Application router configuration
  * Defines all routes and their associated components
- * Includes protected routes that require authentication
- * All routes have error boundaries for proper error handling
+ *
+ * React Router v7 features implemented:
+ * - createBrowserRouter with data router API
+ * - errorElement on every route for error boundaries
+ * - Future flags enabled for v7+ compatibility
+ * - Proper nested route structure
+ * - Protected routes with authentication
  */
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+  [
   {
     path: '/',
     element: <Layout><Home /></Layout>,
@@ -114,4 +120,15 @@ export const router = createBrowserRouter([
     path: '*',
     element: <NotFound />,
   },
-]);
+],
+  {
+    future: {
+      // Enable v7 future flags for better compatibility
+      v7_relativeSplatPath: true,
+      v7_fetcherPersist: true,
+      v7_normalizeFormMethod: true,
+      v7_partialHydration: true,
+      v7_skipActionErrorRevalidation: true,
+    },
+  }
+);
