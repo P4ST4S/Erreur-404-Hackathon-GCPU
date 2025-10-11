@@ -1,6 +1,6 @@
-import { Link, useLocation } from "react-router-dom";
-import type { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Link, useLocation } from 'react-router-dom';
+import type { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 /**
  * NavLink component props
@@ -17,7 +17,7 @@ interface NavLinkProps {
   /** Optional click handler */
   onClick?: () => void;
   /** Display variant */
-  variant?: "sidebar" | "header" | "mobile";
+  variant?: 'sidebar' | 'header' | 'mobile';
   /** Optional description for tooltip */
   description?: string;
 }
@@ -35,24 +35,24 @@ export function NavLink({
   icon: Icon,
   isCollapsed = false,
   onClick,
-  variant = "sidebar",
+  variant = 'sidebar',
   description,
 }: NavLinkProps) {
   const location = useLocation();
   const isActive = location.pathname === href;
 
   // Sidebar variant - for desktop sidebar navigation
-  if (variant === "sidebar") {
+  if (variant === 'sidebar') {
     return (
       <Link
         to={href}
         onClick={onClick}
         className={cn(
-          "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+          'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
           isActive
-            ? "bg-primary text-primary-foreground"
-            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-          isCollapsed && "justify-center"
+            ? 'bg-primary text-primary-foreground'
+            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+          isCollapsed && 'justify-center'
         )}
         title={isCollapsed ? label : description}
       >
@@ -63,16 +63,16 @@ export function NavLink({
   }
 
   // Header variant - for top navigation bar
-  if (variant === "header") {
+  if (variant === 'header') {
     return (
       <Link
         to={href}
         onClick={onClick}
         className={cn(
-          "text-sm font-medium transition-colors",
+          'text-sm font-medium transition-colors',
           isActive
-            ? "text-foreground"
-            : "text-muted-foreground hover:text-foreground"
+            ? 'text-foreground'
+            : 'text-muted-foreground hover:text-foreground'
         )}
         title={description}
       >
@@ -87,10 +87,10 @@ export function NavLink({
       to={href}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+        'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
         isActive
-          ? "bg-primary text-primary-foreground"
-          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          ? 'bg-primary text-primary-foreground'
+          : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
       )}
       title={description}
     >

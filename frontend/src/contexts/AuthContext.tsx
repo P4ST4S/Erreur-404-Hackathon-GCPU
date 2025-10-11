@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useState, useEffect, type ReactNode } from 'react';
 
 /**
  * Authentication context value interface
@@ -23,7 +23,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  role: "admin" | "user" | "auditor";
+  role: 'admin' | 'user' | 'auditor';
 }
 
 /**
@@ -57,14 +57,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const checkAuth = async () => {
       try {
         // TODO: Replace with actual API call to check session
-        const savedAuth = localStorage.getItem("auth");
+        const savedAuth = localStorage.getItem('auth');
         if (savedAuth) {
           const authData = JSON.parse(savedAuth);
           setUser(authData.user);
           setIsAuthenticated(true);
         }
       } catch (error) {
-        console.error("Auth check failed:", error);
+        console.error('Auth check failed:', error);
       } finally {
         setIsLoading(false);
       }
@@ -84,17 +84,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const mockUser: User = {
-        id: "1",
+        id: '1',
         email,
-        name: "Dr. Sarah Johnson",
-        role: "user",
+        name: 'Dr. Sarah Johnson',
+        role: 'user',
       };
 
       setUser(mockUser);
       setIsAuthenticated(true);
-      localStorage.setItem("auth", JSON.stringify({ user: mockUser }));
+      localStorage.setItem('auth', JSON.stringify({ user: mockUser }));
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error('Login failed:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -107,7 +107,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem("auth");
+    localStorage.removeItem('auth');
   };
 
   const value: AuthContextValue = {
