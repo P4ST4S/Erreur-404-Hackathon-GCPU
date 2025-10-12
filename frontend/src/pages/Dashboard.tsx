@@ -29,8 +29,8 @@ export function Dashboard() {
               </p>
               <p className="mt-2 text-3xl font-bold">1,234</p>
             </div>
-            <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
-              <FileCheck className="text-primary h-6 w-6" />
+            <div className="bg-[#5dbdb9]/10 flex h-12 w-12 items-center justify-center rounded-full">
+              <FileCheck className="text-teal-medical h-6 w-6" />
             </div>
           </div>
           <p className="text-muted-foreground mt-4 text-xs">
@@ -83,8 +83,8 @@ export function Dashboard() {
               </p>
               <p className="mt-2 text-3xl font-bold">98.5%</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10">
-              <BarChart3 className="h-6 w-6 text-blue-600 dark:text-blue-500" />
+            <div className="bg-[#5dbdb9]/10 flex h-12 w-12 items-center justify-center rounded-full">
+              <BarChart3 className="text-teal-medical h-6 w-6" />
             </div>
           </div>
           <p className="text-muted-foreground mt-4 text-xs">

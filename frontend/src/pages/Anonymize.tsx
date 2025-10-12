@@ -61,7 +61,7 @@ export function Anonymize() {
       <div>
         <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight">
           Anonymize Documents
-          <Brain className="text-primary h-8 w-8" />
+          <Brain className="text-teal-medical h-8 w-8" />
         </h1>
         <p className="text-muted-foreground mt-2">
           Upload medical documents to automatically identify and redact
@@ -100,7 +100,7 @@ export function Anonymize() {
         {/* Supported data types */}
         <div className="bg-card rounded-lg border p-6">
           <div className="mb-4 flex items-center gap-2">
-            <FileText className="text-primary h-5 w-5" />
+            <FileText className="text-teal-medical h-5 w-5" />
             <h3 className="font-semibold">Detected Information</h3>
           </div>
           <ul className="text-muted-foreground space-y-2 text-sm">
@@ -115,9 +115,9 @@ export function Anonymize() {
         </div>
 
         {/* Security notice */}
-        <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-6">
+        <div className="rounded-lg border border-teal-medical/20 bg-[#5dbdb9]/5 p-6">
           <div className="mb-4 flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-500" />
+            <AlertCircle className="h-5 w-5 text-teal-medical" />
             <h3 className="font-semibold">Security & Compliance</h3>
           </div>
           <p className="text-muted-foreground text-sm">

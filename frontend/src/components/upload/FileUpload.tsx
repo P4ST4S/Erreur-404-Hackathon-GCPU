@@ -226,10 +226,10 @@ export function FileUpload({
         aria-disabled={disabled}
         className={cn(
           "relative rounded-lg border-2 border-dashed transition-all duration-200",
-          "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+          "focus:outline-none focus:ring-2 focus:ring-teal-medical focus:ring-offset-2",
           isDragging
-            ? "border-primary bg-primary/5"
-            : "border-border hover:border-primary/50 hover:bg-accent/50",
+            ? "border-teal-medical bg-[#5dbdb9]/5"
+            : "border-border hover:border-teal-medical/50 hover:bg-accent/50",
           disabled && "cursor-not-allowed opacity-50",
           !disabled && "cursor-pointer"
         )}
@@ -245,13 +245,12 @@ export function FileUpload({
           <div
             className={cn(
               "mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full transition-colors",
-              isDragging ? "bg-primary/20" : "bg-primary/10"
+              isDragging ? "bg-[#5dbdb9]/20" : "bg-[#5dbdb9]/10"
             )}
           >
             <Upload
               className={cn(
-                "h-8 w-8 transition-colors",
-                isDragging ? "text-primary" : "text-primary"
+                "h-8 w-8 transition-colors text-teal-medical"
               )}
             />
           </div>
@@ -275,7 +274,7 @@ export function FileUpload({
               e.stopPropagation();
               handleClick();
             }}
-            className="shadow-lg hover:shadow-xl hover:scale-105 transition-all font-semibold"
+            className="bg-teal-medical hover:bg-teal-medical-dark text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all font-semibold"
           >
             <Upload className="mr-2 h-5 w-5" />
             Choose Files
@@ -293,9 +292,9 @@ export function FileUpload({
           </div>
 
           {/* HIPAA compliance notice */}
-          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-blue-600 dark:text-blue-500">
+          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-teal-medical">
             <CheckCircle2 className="h-4 w-4" />
-            <span>HIPAA & GDPR Compliant Processing</span>
+            <span className="font-medium">HIPAA & GDPR Compliant Processing</span>
           </div>
         </div>
 
@@ -355,7 +354,7 @@ export function FileUpload({
                 className="flex items-center justify-between rounded-md border bg-card p-3 transition-colors hover:bg-accent/50"
               >
                 <div className="flex items-center gap-3 overflow-hidden">
-                  <FileText className="text-primary h-5 w-5 flex-shrink-0" />
+                  <FileText className="text-teal-medical h-5 w-5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{file.name}</p>
                     <p className="text-muted-foreground text-xs">
