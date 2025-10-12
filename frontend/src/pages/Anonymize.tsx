@@ -115,9 +115,9 @@ export function Anonymize() {
         </div>
 
         {/* Security notice */}
-        <div className="rounded-lg border border-teal-medical/20 bg-[#5dbdb9]/5 p-6">
+        <div className="border-teal-medical/20 rounded-lg border bg-[#5dbdb9]/5 p-6">
           <div className="mb-4 flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-teal-medical" />
+            <AlertCircle className="text-teal-medical h-5 w-5" />
             <h3 className="font-semibold">Security & Compliance</h3>
           </div>
           <p className="text-muted-foreground text-sm">
