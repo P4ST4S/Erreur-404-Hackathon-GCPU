@@ -19,6 +19,11 @@ import {
   calculateDatasetStatistics,
   type DatasetStatistics,
 } from "@/utils/data-analysis";
+import {
+  RowDetailView,
+  AdvancedSearch,
+  ExportDialog,
+} from "@/components/data-viewer";
 
 /**
  * Anonymize page - Document upload and anonymization interface
@@ -34,6 +39,14 @@ export function Anonymize() {
   const [datasetStats, setDatasetStats] = useState<DatasetStatistics | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(true);
   const [showColumnStats, setShowColumnStats] = useState(false);
+
+  // Row detail view state
+  const [selectedRow, setSelectedRow] = useState<MedicalDataRow | null>(null);
+  const [selectedRowIndex, setSelectedRowIndex] = useState<number>(-1);
+  const [isRowDetailOpen, setIsRowDetailOpen] = useState(false);
+
+  // Export dialog state
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
 
   // Calculate statistics when data changes
   useEffect(() => {
@@ -144,13 +157,37 @@ export function Anonymize() {
   };
 
   /**
+   * Handle row click to show detail view
+   */
+  const handleRowClick = (row: MedicalDataRow, index: number) => {
+    setSelectedRow(row);
+    setSelectedRowIndex(index);
+    setIsRowDetailOpen(true);
+  };
+
+  /**
+   * Navigate between rows in detail view
+   */
+  const handleRowNavigate = (direction: "prev" | "next") => {
+    if (direction === "prev" && selectedRowIndex > 0) {
+      const newIndex = selectedRowIndex - 1;
+      setSelectedRow(tableData[newIndex]);
+      setSelectedRowIndex(newIndex);
+    } else if (direction === "next" && selectedRowIndex < tableData.length - 1) {
+      const newIndex = selectedRowIndex + 1;
+      setSelectedRow(tableData[newIndex]);
+      setSelectedRowIndex(newIndex);
+    }
+  };
+
+  /**
    * Generate column definitions for the table
    */
   const columns = useMemo<ColumnDef<MedicalDataRow>[]>(() => {
-    return columnMetadata.map((col) => ({
+    const dataColumns: ColumnDef<MedicalDataRow>[] = columnMetadata.map((col) => ({
       id: col.id,
       accessorKey: col.id, // Use col.id instead of col.header to match the data keys
-      header: ({ column }) => (
+      header: ({ column }: { column: any }) => (
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <span className="font-semibold">{col.header}</span>
@@ -163,7 +200,7 @@ export function Anonymize() {
           <ColumnFilter column={column} placeholder={`Filter ${col.header}...`} />
         </div>
       ),
-      cell: ({ getValue }) => {
+      cell: ({ getValue }: { getValue: () => any }) => {
         const value = getValue();
         return (
           <SensitiveDataCell
@@ -176,7 +213,26 @@ export function Anonymize() {
       enableSorting: true,
       enableColumnFilter: true,
     }));
-  }, [columnMetadata]);
+
+    // Add action column
+    const actionColumn: ColumnDef<MedicalDataRow> = {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => handleRowClick(row.original, row.index)}
+        >
+          View Details
+        </Button>
+      ),
+      enableSorting: false,
+      enableColumnFilter: false,
+    };
+
+    return [...dataColumns, actionColumn];
+  }, [columnMetadata, handleRowClick]);
 
   return (
     <div className="space-y-8">
@@ -312,15 +368,22 @@ export function Anonymize() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  // TODO: Implement export functionality
-                  console.log("Export data");
-                }}
+                onClick={() => setIsExportDialogOpen(true)}
               >
                 <Download className="h-4 w-4" />
                 Export
               </Button>
             </div>
+
+            {/* Advanced Search */}
+            <AdvancedSearch
+              data={tableData}
+              columns={columnMetadata}
+              onResultSelect={(rowIndex) => {
+                const row = tableData[rowIndex];
+                handleRowClick(row, rowIndex);
+              }}
+            />
 
             <DataTable
               data={tableData}
@@ -332,13 +395,34 @@ export function Anonymize() {
                 enableSorting: true,
                 enableFiltering: true,
                 enableColumnResizing: true,
-                enableGlobalFilter: true,
+                enableGlobalFilter: false, // Disabled: using AdvancedSearch instead
                 defaultPageSize: 50,
               }}
             />
           </div>
         </div>
       )}
+
+      {/* Row Detail View */}
+      <RowDetailView
+        row={selectedRow}
+        columns={columnMetadata}
+        isOpen={isRowDetailOpen}
+        onClose={() => setIsRowDetailOpen(false)}
+        onNavigate={handleRowNavigate}
+        canNavigatePrev={selectedRowIndex > 0}
+        canNavigateNext={selectedRowIndex < tableData.length - 1}
+        rowIndex={selectedRowIndex}
+        totalRows={tableData.length}
+      />
+
+      {/* Export Dialog */}
+      <ExportDialog
+        data={tableData}
+        columns={columnMetadata}
+        isOpen={isExportDialogOpen}
+        onClose={() => setIsExportDialogOpen(false)}
+      />
 
       {/* Info cards */}
       <div className="grid gap-6 md:grid-cols-2">

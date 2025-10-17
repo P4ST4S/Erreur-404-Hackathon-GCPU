@@ -7,11 +7,12 @@
 import { useState } from "react";
 import { Eye, EyeOff, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { ColumnMetadata } from "@/types/data-table";
 
 interface SensitiveDataCellProps {
   value: unknown;
   isSensitive?: boolean;
-  type?: string;
+  type?: ColumnMetadata["type"];
   className?: string;
 }
 
@@ -38,11 +39,35 @@ export function SensitiveDataCell({
     }
 
     if (type === "phone") {
-      return stringValue.replace(/\d(?=\d{4})/g, "*");
+      // Extract only digits for masking
+      const digits = stringValue.replace(/\D/g, "");
+      if (digits.length >= 4) {
+        const lastFour = digits.slice(-4);
+        const masked = "*".repeat(digits.length - 4) + lastFour;
+        // Try to preserve original format
+        if (stringValue.includes("(") && stringValue.includes(")")) {
+          return `(***) ***-${lastFour}`;
+        }
+        return masked;
+      }
+      return "*".repeat(stringValue.length);
     }
 
     if (type === "ssn") {
-      return stringValue.replace(/\d(?=\d{4})/g, "*");
+      const digits = stringValue.replace(/\D/g, "");
+      if (digits.length >= 4) {
+        const lastFour = digits.slice(-4);
+        return "*".repeat(digits.length - 4) + lastFour;
+      }
+      return "*".repeat(stringValue.length);
+    }
+
+    if (type === "mrn") {
+      // Show only last 3 characters for MRN
+      if (stringValue.length > 3) {
+        return "*".repeat(stringValue.length - 3) + stringValue.slice(-3);
+      }
+      return "*".repeat(stringValue.length);
     }
 
     // Default masking: show first 2 and last 2 characters
