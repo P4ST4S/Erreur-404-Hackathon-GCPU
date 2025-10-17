@@ -1,44 +1,106 @@
-import { Upload, FileText, AlertCircle } from "lucide-react";
+import { FileText, AlertCircle, Brain, Sparkles } from "lucide-react";
+import { FileUpload } from "@/components/upload/FileUpload";
+import type { UploadedFile } from "@/types/file-upload";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 /**
  * Anonymize page - Document upload and anonymization interface
+ * Uses Vertex AI for intelligent medical data anonymization
  */
 export function Anonymize() {
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  /**
+   * Handle files selected by the user
+   */
+  const handleFilesSelected = (files: UploadedFile[]) => {
+    setUploadedFiles((prev) => [...prev, ...files]);
+  };
+
+  /**
+   * Handle files removed by the user
+   */
+  const handleFilesRemoved = (fileIds: string[]) => {
+    setUploadedFiles((prev) =>
+      prev.filter((file) => !fileIds.includes(file.id))
+    );
+  };
+
+  /**
+   * Process files with Vertex AI anonymization
+   * TODO: Integrate with backend Vertex AI API
+   */
+  const handleAnonymize = async () => {
+    if (uploadedFiles.length === 0) return;
+
+    setIsProcessing(true);
+    try {
+      // TODO: Send files to backend for Vertex AI processing
+      // const response = await fetch('/api/anonymize', {
+      //   method: 'POST',
+      //   body: formData,
+      // });
+
+      // Simulate processing for now
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Show success message or navigate to results
+      console.log("Files processed:", uploadedFiles);
+    } catch (error) {
+      console.error("Anonymization failed:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Page header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight">
           Anonymize Documents
+          <Brain className="text-teal-medical h-8 w-8" />
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground mt-2">
           Upload medical documents to automatically identify and redact
-          sensitive patient information.
+          sensitive patient information using AI-powered anonymization.
         </p>
       </div>
 
-      {/* Upload area */}
-      <div className="bg-card hover:border-primary/50 rounded-lg border-2 border-dashed p-12 text-center transition-colors">
-        <div className="bg-primary/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
-          <Upload className="text-primary h-8 w-8" />
+      {/* File Upload Component */}
+      <FileUpload
+        onFilesSelected={handleFilesSelected}
+        onFilesRemoved={handleFilesRemoved}
+        maxFileSize={50 * 1024 * 1024} // 50MB
+        maxFiles={10}
+        multiple
+      />
+
+      {/* Anonymize Button */}
+      {uploadedFiles.length > 0 && (
+        <div className="flex items-center justify-center">
+          <Button
+            size="lg"
+            onClick={handleAnonymize}
+            disabled={isProcessing}
+            className="gap-2"
+          >
+            <Sparkles className="h-5 w-5" />
+            {isProcessing
+              ? "Processing with AI..."
+              : `Anonymize ${uploadedFiles.length} ${uploadedFiles.length === 1 ? "File" : "Files"}`}
+          </Button>
         </div>
-        <h3 className="mb-2 text-lg font-semibold">Upload Medical Documents</h3>
-        <p className="text-muted-foreground mb-4 text-sm">
-          Drag and drop files here, or click to browse
-        </p>
-        <Button>Choose Files</Button>
-        <p className="text-muted-foreground mt-4 text-xs">
-          Supports PDF, DOCX, TXT, and image files up to 50MB
-        </p>
-      </div>
+      )}
 
       {/* Info cards */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* Supported data types */}
         <div className="bg-card rounded-lg border p-6">
           <div className="mb-4 flex items-center gap-2">
-            <FileText className="text-primary h-5 w-5" />
+            <FileText className="text-teal-medical h-5 w-5" />
             <h3 className="font-semibold">Detected Information</h3>
           </div>
           <ul className="text-muted-foreground space-y-2 text-sm">
@@ -53,9 +115,9 @@ export function Anonymize() {
         </div>
 
         {/* Security notice */}
-        <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-6">
+        <div className="border-teal-medical/20 rounded-lg border bg-[#5dbdb9]/5 p-6">
           <div className="mb-4 flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-500" />
+            <AlertCircle className="text-teal-medical h-5 w-5" />
             <h3 className="font-semibold">Security & Compliance</h3>
           </div>
           <p className="text-muted-foreground text-sm">

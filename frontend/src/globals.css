@@ -11,26 +11,26 @@
 @theme {
   /* Tailwind v4 CSS-first configuration */
 
-  /* Color palette using HSL values */
+  /* Color palette using HSL values - Medical AI theme with teal accent */
   --color-background: 0 0% 100%;
   --color-foreground: 222.2 84% 4.9%;
   --color-card: 0 0% 100%;
   --color-card-foreground: 222.2 84% 4.9%;
   --color-popover: 0 0% 100%;
   --color-popover-foreground: 222.2 84% 4.9%;
-  --color-primary: 221.2 83.2% 53.3%;
-  --color-primary-foreground: 210 40% 98%;
+  --color-primary: 178 42% 55%;
+  --color-primary-foreground: 0 0% 100%;
   --color-secondary: 210 40% 96.1%;
   --color-secondary-foreground: 222.2 47.4% 11.2%;
   --color-muted: 210 40% 96.1%;
   --color-muted-foreground: 215.4 16.3% 46.9%;
-  --color-accent: 210 40% 96.1%;
-  --color-accent-foreground: 222.2 47.4% 11.2%;
+  --color-accent: 178 30% 95%;
+  --color-accent-foreground: 178 50% 30%;
   --color-destructive: 0 84.2% 60.2%;
   --color-destructive-foreground: 210 40% 98%;
   --color-border: 214.3 31.8% 91.4%;
   --color-input: 214.3 31.8% 91.4%;
-  --color-ring: 221.2 83.2% 53.3%;
+  --color-ring: 178 42% 55%;
 
   /* Border radius tokens */
   --radius: 0.5rem;
@@ -74,19 +74,19 @@
   --card-foreground: 222.2 84% 4.9%;
   --popover: 0 0% 100%;
   --popover-foreground: 222.2 84% 4.9%;
-  --primary: 221.2 83.2% 53.3%;
-  --primary-foreground: 210 40% 98%;
+  --primary: 178 42% 55%;
+  --primary-foreground: 0 0% 100%;
   --secondary: 210 40% 96.1%;
   --secondary-foreground: 222.2 47.4% 11.2%;
   --muted: 210 40% 96.1%;
   --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
+  --accent: 178 30% 95%;
+  --accent-foreground: 178 50% 30%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
-  --ring: 221.2 83.2% 53.3%;
+  --ring: 178 42% 55%;
   --radius: 0.5rem;
 }
 
@@ -101,19 +101,19 @@
   --card-foreground: 210 40% 98%;
   --popover: 222.2 84% 4.9%;
   --popover-foreground: 210 40% 98%;
-  --primary: 217.2 91.2% 59.8%;
+  --primary: 178 42% 60%;
   --primary-foreground: 222.2 47.4% 11.2%;
   --secondary: 217.2 32.6% 17.5%;
   --secondary-foreground: 210 40% 98%;
   --muted: 217.2 32.6% 17.5%;
   --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 178 30% 25%;
+  --accent-foreground: 178 40% 85%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 210 40% 98%;
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
-  --ring: 224.3 76.3% 48%;
+  --ring: 178 42% 60%;
 }
 
 /**
@@ -177,4 +177,30 @@ p {
   box-shadow:
     0 0 0 2px hsl(var(--background)),
     0 0 0 4px hsl(var(--ring));
+}
+
+/**
+ * Custom teal color utilities for medical AI branding
+ * Based on logo color #5DBDB9
+ */
+@layer utilities {
+  .bg-teal-medical {
+    background-color: #5dbdb9;
+  }
+
+  .hover\:bg-teal-medical-dark:hover {
+    background-color: #4fa9a5;
+  }
+
+  .text-teal-medical {
+    color: #5dbdb9;
+  }
+
+  .border-teal-medical {
+    border-color: #5dbdb9;
+  }
+
+  .ring-teal-medical {
+    --tw-ring-color: #5dbdb9;
+  }
 }

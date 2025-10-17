@@ -57,7 +57,7 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
         <label
           htmlFor={id}
           className={cn(
-            "block text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2",
+            "mb-2 block text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
             error && "text-destructive",
             labelClassName
           )}
