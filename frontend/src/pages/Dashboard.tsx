@@ -1,112 +1,116 @@
-import { BarChart3, FileCheck, Upload, Clock } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-
 /**
- * Dashboard page - Overview of anonymization activity and statistics
+ * Dashboard page - Data Preview & Analysis Dashboard
+ * Overview of data analysis, statistics, and anonymization activity
  */
+
+import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { generateSampleData } from "@/utils/data-parser";
+import {
+  calculateDatasetStatistics,
+  type DatasetStatistics,
+} from "@/utils/data-analysis";
+import {
+  DashboardStats,
+  DashboardActions,
+  DashboardAnalysis,
+  DashboardHistory,
+  type RecentDataset,
+} from "@/components/dashboard";
+
 export function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // State
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [datasetStats, setDatasetStats] = useState<DatasetStatistics | null>(null);
+
+  // Mock recent datasets
+  const recentDatasets: RecentDataset[] = [
+    {
+      id: "1",
+      name: "Patient Records Q4 2024",
+      rows: 15420,
+      columns: 12,
+      sensitiveColumns: 7,
+      processedDate: "2024-12-15",
+      status: "completed",
+      qualityScore: 92,
+    },
+    {
+      id: "2",
+      name: "Clinical Trial Data Set A",
+      rows: 8934,
+      columns: 18,
+      sensitiveColumns: 10,
+      processedDate: "2024-12-10",
+      status: "completed",
+      qualityScore: 88,
+    },
+    {
+      id: "3",
+      name: "Insurance Claims 2024",
+      rows: 23567,
+      columns: 15,
+      sensitiveColumns: 9,
+      processedDate: "2024-12-05",
+      status: "completed",
+      qualityScore: 95,
+    },
+  ];
+
+  // Handlers
+  const handleLoadDemoData = () => {
+    const { data, columns } = generateSampleData(100);
+    const stats = calculateDatasetStatistics(data, columns);
+    setDatasetStats(stats);
+    setShowAnalysis(true);
+  };
+
+  const handleDownload = (datasetId: string) => {
+    console.log("Download dataset:", datasetId);
+    // TODO: Implement download functionality
+  };
 
   return (
     <div className="space-y-8">
       {/* Page header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome back, {user?.name}. Here's an overview of your anonymization
-          activity.
+        <h1 className="text-3xl font-bold tracking-tight">
+          Data Preview & Analysis Dashboard
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          Welcome back, {user?.name}. Analyze and preview your medical data before anonymization.
         </p>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {/* Total documents */}
-        <div className="bg-card rounded-lg border p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">
-                Total Documents
-              </p>
-              <p className="mt-2 text-3xl font-bold">1,234</p>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#5dbdb9]/10">
-              <FileCheck className="text-teal-medical h-6 w-6" />
-            </div>
-          </div>
-          <p className="text-muted-foreground mt-4 text-xs">
-            +12% from last month
-          </p>
-        </div>
+      {/* Quick Stats */}
+      <DashboardStats datasets={recentDatasets} />
 
-        {/* Processing */}
-        <div className="bg-card rounded-lg border p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">
-                Processing
-              </p>
-              <p className="mt-2 text-3xl font-bold">23</p>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-500/10">
-              <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-500" />
-            </div>
-          </div>
-          <p className="text-muted-foreground mt-4 text-xs">
-            Currently being anonymized
-          </p>
-        </div>
+      {/* Quick Actions */}
+      <DashboardActions
+        onUploadNew={() => navigate("/anonymize")}
+        onViewSample={handleLoadDemoData}
+        onViewHistory={() => navigate("/history")}
+      />
 
-        {/* This month */}
-        <div className="bg-card rounded-lg border p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">
-                This Month
-              </p>
-              <p className="mt-2 text-3xl font-bold">156</p>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10">
-              <Upload className="h-6 w-6 text-green-600 dark:text-green-500" />
-            </div>
-          </div>
-          <p className="text-muted-foreground mt-4 text-xs">
-            Documents anonymized
-          </p>
-        </div>
+      {/* Demo Analysis */}
+      {showAnalysis && datasetStats && (
+        <DashboardAnalysis
+          statistics={datasetStats}
+          onHide={() => setShowAnalysis(false)}
+          onNavigateToAnonymize={() => navigate("/anonymize")}
+        />
+      )}
 
-        {/* Success rate */}
-        <div className="bg-card rounded-lg border p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">
-                Success Rate
-              </p>
-              <p className="mt-2 text-3xl font-bold">98.5%</p>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#5dbdb9]/10">
-              <BarChart3 className="text-teal-medical h-6 w-6" />
-            </div>
-          </div>
-          <p className="text-muted-foreground mt-4 text-xs">
-            Average accuracy score
-          </p>
-        </div>
-      </div>
-
-      {/* Recent activity placeholder */}
-      <div className="bg-card rounded-lg border">
-        <div className="border-b p-6">
-          <h2 className="text-xl font-semibold">Recent Activity</h2>
-          <p className="text-muted-foreground text-sm">
-            Latest document processing history
-          </p>
-        </div>
-        <div className="p-6">
-          <div className="text-muted-foreground flex items-center justify-center py-12">
-            <p>Recent activity feed will be displayed here</p>
-          </div>
-        </div>
-      </div>
+      {/* Recent Datasets */}
+      <DashboardHistory
+        datasets={recentDatasets}
+        onViewAll={() => navigate("/history")}
+        onDownload={handleDownload}
+      />
     </div>
   );
 }
