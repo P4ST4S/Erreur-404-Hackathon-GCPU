@@ -6,6 +6,7 @@ import { Home } from "@/pages/Home";
 import { Login } from "@/pages/Login";
 import { Dashboard } from "@/pages/Dashboard";
 import { Anonymize } from "@/pages/Anonymize";
+import { History } from "@/pages/History";
 import { NotFound } from "@/pages/NotFound";
 
 /**
@@ -52,6 +53,17 @@ export const router = createBrowserRouter(
         <Layout>
           <ProtectedRoute>
             <Anonymize />
+          </ProtectedRoute>
+        </Layout>
+      ),
+      errorElement: <RouteErrorBoundary />,
+    },
+    {
+      path: "/history",
+      element: (
+        <Layout>
+          <ProtectedRoute>
+            <History />
           </ProtectedRoute>
         </Layout>
       ),
