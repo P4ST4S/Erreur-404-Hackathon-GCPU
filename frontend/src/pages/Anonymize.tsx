@@ -1,8 +1,13 @@
-import { FileText, AlertCircle, Brain, Sparkles } from "lucide-react";
+import { FileText, AlertCircle, Brain, Sparkles, Table2, Download } from "lucide-react";
 import { FileUpload } from "@/components/upload/FileUpload";
 import type { UploadedFile } from "@/types/file-upload";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/data-table";
+import type { MedicalDataRow, ColumnMetadata } from "@/types/data-table";
+import type { ColumnDef } from "@tanstack/react-table";
+import { parseFile, generateSampleData } from "@/utils/data-parser";
+import { ColumnFilter } from "@/components/data-table/ColumnFilter";
 
 /**
  * Anonymize page - Document upload and anonymization interface
@@ -11,12 +16,28 @@ import { Button } from "@/components/ui/button";
 export function Anonymize() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [tableData, setTableData] = useState<MedicalDataRow[]>([]);
+  const [columnMetadata, setColumnMetadata] = useState<ColumnMetadata[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
+  const [useSampleData, setUseSampleData] = useState(false);
 
   /**
    * Handle files selected by the user
    */
-  const handleFilesSelected = (files: UploadedFile[]) => {
+  const handleFilesSelected = async (files: UploadedFile[]) => {
     setUploadedFiles((prev) => [...prev, ...files]);
+
+    // Auto-parse the first file for preview
+    if (files.length > 0 && files[0].status === "success") {
+      try {
+        const parsed = await parseFile(files[0].file);
+        setTableData(parsed.data);
+        setColumnMetadata(parsed.columns);
+        setShowPreview(true);
+      } catch (error) {
+        console.error("Failed to parse file:", error);
+      }
+    }
   };
 
   /**
@@ -26,6 +47,24 @@ export function Anonymize() {
     setUploadedFiles((prev) =>
       prev.filter((file) => !fileIds.includes(file.id))
     );
+
+    // Clear preview if all files are removed
+    if (uploadedFiles.length === fileIds.length) {
+      setTableData([]);
+      setColumnMetadata([]);
+      setShowPreview(false);
+    }
+  };
+
+  /**
+   * Load sample data for testing
+   */
+  const handleLoadSampleData = () => {
+    const { data, columns } = generateSampleData(1000);
+    setTableData(data);
+    setColumnMetadata(columns);
+    setShowPreview(true);
+    setUseSampleData(true);
   };
 
   /**
@@ -33,7 +72,7 @@ export function Anonymize() {
    * TODO: Integrate with backend Vertex AI API
    */
   const handleAnonymize = async () => {
-    if (uploadedFiles.length === 0) return;
+    if (uploadedFiles.length === 0 && !useSampleData) return;
 
     setIsProcessing(true);
     try {
@@ -48,12 +87,43 @@ export function Anonymize() {
 
       // Show success message or navigate to results
       console.log("Files processed:", uploadedFiles);
+      console.log("Data rows:", tableData.length);
     } catch (error) {
       console.error("Anonymization failed:", error);
     } finally {
       setIsProcessing(false);
     }
   };
+
+  /**
+   * Generate column definitions for the table
+   */
+  const columns = useMemo<ColumnDef<MedicalDataRow>[]>(() => {
+    return columnMetadata.map((col) => ({
+      id: col.id,
+      accessorKey: col.id, // Use col.id instead of col.header to match the data keys
+      header: ({ column }) => (
+        <div className="flex flex-col">
+          <div className="flex items-center gap-1">
+            <span>{col.header}</span>
+            {col.isSensitive && (
+              <span className="rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] font-medium text-red-600">
+                Sensitive
+              </span>
+            )}
+          </div>
+          <ColumnFilter column={column} placeholder={`Filter ${col.header}...`} />
+        </div>
+      ),
+      cell: ({ getValue }) => {
+        const value = getValue();
+        if (value === null || value === undefined) return <span className="text-muted-foreground">—</span>;
+        return <span>{String(value)}</span>;
+      },
+      enableSorting: true,
+      enableColumnFilter: true,
+    }));
+  }, [columnMetadata]);
 
   return (
     <div className="space-y-8">
@@ -78,20 +148,85 @@ export function Anonymize() {
         multiple
       />
 
-      {/* Anonymize Button */}
-      {uploadedFiles.length > 0 && (
-        <div className="flex items-center justify-center">
+      {/* Action Buttons */}
+      <div className="flex items-center justify-center gap-4">
+        {/* Load Sample Data Button */}
+        {!showPreview && uploadedFiles.length === 0 && (
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={handleLoadSampleData}
+            className="font-semibold"
+          >
+            <Table2 className="h-5 w-5" />
+            Load Sample Data (1000 rows)
+          </Button>
+        )}
+
+        {/* Anonymize Button */}
+        {(uploadedFiles.length > 0 || useSampleData) && (
           <Button
             size="lg"
             onClick={handleAnonymize}
             disabled={isProcessing}
-            className="gap-2"
+            className="bg-teal-medical hover:bg-teal-medical-dark font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
           >
             <Sparkles className="h-5 w-5" />
             {isProcessing
               ? "Processing with AI..."
-              : `Anonymize ${uploadedFiles.length} ${uploadedFiles.length === 1 ? "File" : "Files"}`}
+              : useSampleData
+                ? "Anonymize Sample Data"
+                : `Anonymize ${uploadedFiles.length} ${uploadedFiles.length === 1 ? "File" : "Files"}`}
           </Button>
+        )}
+      </div>
+
+      {/* Data Preview Table */}
+      {showPreview && tableData.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="flex items-center gap-2 text-2xl font-bold">
+                <Table2 className="h-6 w-6 text-teal-medical" />
+                Data Preview & Analysis
+              </h2>
+              <p className="text-muted-foreground mt-1 text-sm">
+                {tableData.length.toLocaleString()} rows × {columnMetadata.length} columns
+                {columnMetadata.filter((c) => c.isSensitive).length > 0 && (
+                  <span className="ml-2 text-red-600">
+                    • {columnMetadata.filter((c) => c.isSensitive).length} sensitive column
+                    {columnMetadata.filter((c) => c.isSensitive).length !== 1 ? "s" : ""} detected
+                  </span>
+                )}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                // TODO: Implement export functionality
+                console.log("Export data");
+              }}
+            >
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
+          </div>
+
+          <DataTable
+            data={tableData}
+            columns={columns}
+            height="600px"
+            config={{
+              enableVirtualization: tableData.length > 100,
+              enablePagination: tableData.length > 100,
+              enableSorting: true,
+              enableFiltering: true,
+              enableColumnResizing: true,
+              enableGlobalFilter: true,
+              defaultPageSize: 50,
+            }}
+          />
         </div>
       )}
 
