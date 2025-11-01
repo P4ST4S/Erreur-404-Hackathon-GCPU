@@ -31,3 +31,9 @@ google-cloud-storage==2.14.0
 
 # Scheduled tasks
 apscheduler==3.10.4
+
+# Vertex AI
+vertexai==1.71.1
+
+# Utils
+structlog==25.5.0
