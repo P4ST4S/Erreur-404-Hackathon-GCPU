@@ -5,6 +5,7 @@ uvicorn[standard]==0.37.0
 # Data validation
 pydantic==2.11.9
 pydantic-settings==2.11.0
+email-validator==2.1.0
 
 # Environment variables management
 python-dotenv==1.1.1
@@ -13,3 +14,8 @@ python-dotenv==1.1.1
 sqlalchemy==2.0.25
 psycopg2-binary==2.9.9
 alembic==1.13.1
+
+# Authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
