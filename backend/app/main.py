@@ -22,7 +22,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 from app.core.config import settings
 from app.persistence.database import engine, Base
-from app.routers import auth, upload
+from app.routers import auth, upload, validate
 from app.services.cleanup import run_cleanup_task
 
 # Initialize scheduler
@@ -77,3 +77,4 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(upload.router, prefix="/api/v1")
+app.include_router(validate.router, prefix="/api/v1")
