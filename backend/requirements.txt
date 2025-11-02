@@ -37,3 +37,8 @@ vertexai==1.71.1
 
 # Utils
 structlog==25.5.0
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
