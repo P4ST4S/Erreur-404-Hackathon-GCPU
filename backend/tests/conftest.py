@@ -9,8 +9,6 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from fastapi.testclient import TestClient
-
-# Set test environment variables before importing app
 os.environ["DATABASE_URL"] = "sqlite:///./test.db"
 os.environ["USE_LOCAL_STORAGE"] = "true"
 os.environ["LOCAL_STORAGE_PATH"] = tempfile.gettempdir()
@@ -19,8 +17,6 @@ from app.main import app
 from app.persistence.database import Base, get_db
 from app.persistence.models import User, Dataset, DatasetStatus, UploadedFile, UserRole
 from app.core.config import settings
-
-# Create in-memory SQLite database for testing
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
 engine = create_engine(
@@ -69,16 +65,12 @@ def temp_storage() -> Generator[str, None, None]:
     Create a temporary directory for file storage during tests
     """
     temp_dir = tempfile.mkdtemp()
-
-    # Override the settings to use this temp directory
     original_path = settings.local_storage_path
     original_use_local = settings.use_local_storage
     settings.local_storage_path = temp_dir
     settings.use_local_storage = True
 
     yield temp_dir
-
-    # Cleanup
     shutil.rmtree(temp_dir, ignore_errors=True)
     settings.local_storage_path = original_path
     settings.use_local_storage = original_use_local

@@ -44,8 +44,6 @@ class User(Base):
     role = Column(Enum(UserRole), default=UserRole.USER, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    # Relationships
     datasets = relationship("Dataset", back_populates="owner", cascade="all, delete-orphan")
     
     def __repr__(self):
@@ -65,8 +63,6 @@ class Dataset(Base):
     total_size = Column(Integer, default=0)  # Total size in bytes
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    # Relationships
     owner = relationship("User", back_populates="datasets")
     files = relationship("UploadedFile", back_populates="dataset", cascade="all, delete-orphan")
     
@@ -86,19 +82,13 @@ class UploadedFile(Base):
     file_path = Column(String, nullable=False)  # Path in GCS or local storage
     file_size = Column(Integer, nullable=False)  # Size in bytes
     content_type = Column(String, default="text/csv")
-    
-    # CSV Metadata
     row_count = Column(Integer)
     column_count = Column(Integer)
     columns_info = Column(Text)  # JSON string with column names and types
-    
-    # Expiration management
     is_anonymized = Column(Boolean, default=False, nullable=False)
     expires_at = Column(DateTime(timezone=True))  # Null if anonymized
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
-    # Relationships
     dataset = relationship("Dataset", back_populates="files")
     
     def __repr__(self):

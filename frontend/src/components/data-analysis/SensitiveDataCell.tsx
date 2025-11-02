@@ -30,7 +30,6 @@ export function SensitiveDataCell({
 
   const stringValue = String(value);
 
-  // For sensitive data, show masked version by default
   const getMaskedValue = () => {
     if (type === "email") {
       const [username, domain] = stringValue.split("@");
@@ -39,12 +38,10 @@ export function SensitiveDataCell({
     }
 
     if (type === "phone") {
-      // Extract only digits for masking
       const digits = stringValue.replace(/\D/g, "");
       if (digits.length >= 4) {
         const lastFour = digits.slice(-4);
         const masked = "*".repeat(digits.length - 4) + lastFour;
-        // Try to preserve original format
         if (stringValue.includes("(") && stringValue.includes(")")) {
           return `(***) ***-${lastFour}`;
         }
@@ -63,14 +60,12 @@ export function SensitiveDataCell({
     }
 
     if (type === "mrn") {
-      // Show only last 3 characters for MRN
       if (stringValue.length > 3) {
         return "*".repeat(stringValue.length - 3) + stringValue.slice(-3);
       }
       return "*".repeat(stringValue.length);
     }
 
-    // Default masking: show first 2 and last 2 characters
     if (stringValue.length > 6) {
       return `${stringValue.slice(0, 2)}${"*".repeat(stringValue.length - 4)}${stringValue.slice(-2)}`;
     }

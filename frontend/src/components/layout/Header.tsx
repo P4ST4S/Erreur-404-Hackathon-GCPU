@@ -105,7 +105,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             <>
               <Separator orientation="vertical" className="h-6" />
               <Button asChild variant="ghost" size="sm">
-                <Link to="/login">Sign In</Link>
+                <Link to="/login">Sign In/Log In</Link>
               </Button>
             </>
           )}

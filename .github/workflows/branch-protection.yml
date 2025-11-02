@@ -8,7 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Validate branch naming convention
   branch-naming:
     name: Validate Branch Name
     runs-on: ubuntu-latest
@@ -17,7 +16,6 @@ jobs:
       - name: Check branch name
         run: |
           BRANCH_NAME="${{ github.head_ref }}"
-          # Allow the literal 'dev' branch, or branches matching the conventional pattern
           PATTERN="^(dev$|(feature|bugfix|hotfix|documentation|refactor|performance|security|accessibility|maintenance|ci|test)\/[0-9]+-[a-z0-9-]+)$"
 
           if ! echo "$BRANCH_NAME" | grep -qE "$PATTERN"; then
@@ -28,8 +26,6 @@ jobs:
             exit 1
           fi
           echo "✅ Branch name is valid: $BRANCH_NAME"
-
-  # Validate PR title format
   pr-title:
     name: Validate PR Title
     runs-on: ubuntu-latest
@@ -49,8 +45,6 @@ jobs:
             exit 1
           fi
           echo "✅ PR title is valid: $PR_TITLE"
-
-  # Validate PR size (max 400 lines excluding docs)
   pr-size:
     name: Validate PR Size
     runs-on: ubuntu-latest
@@ -64,8 +58,6 @@ jobs:
       - name: Check PR size
         run: |
           git fetch origin ${{ github.base_ref }}
-
-          # Count lines changed only in the infra/ directory
           LINES_CHANGED=$(git diff origin/${{ github.base_ref }}...HEAD --stat -- infra/ | \
             grep -v '\.md$' | \
             awk '{sum += $1 + $2} END {print sum+0}')
@@ -82,8 +74,6 @@ jobs:
             exit 1
           fi
           echo "✅ PR size is within limits for infra/ directory"
-
-  # All checks must pass
   all-checks:
     name: All Checks Passed
     runs-on: ubuntu-latest
@@ -135,8 +125,6 @@ jobs:
                 failedChecks.map(check => '- `' + check + '`').join('\n') + '\n\n' +
                 'Please check the [Actions tab](../../actions) for detailed error messages and refer to [docs/pr_guide.md](../blob/main/docs/pr_guide.md) for guidance.';
             }
-
-            // Find existing bot comments
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -147,8 +135,6 @@ jobs:
               comment.user.type === 'Bot' &&
               comment.body.includes('Branch Protection')
             );
-
-            // Update existing comment or create new one
             if (botComment) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
@@ -164,8 +150,6 @@ jobs:
                 body: commentBody
               });
             }
-
-            // Fail the job if any check failed
             if (!allPassed) {
               core.setFailed('One or more branch protection checks failed');
             }

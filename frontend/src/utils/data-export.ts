@@ -32,8 +32,6 @@ function convertToCSV(
   const selectedColumns = options.selectedColumns
     ? columns.filter((c) => options.selectedColumns!.includes(c.id))
     : columns;
-
-  // Filter out sensitive columns if needed
   const exportColumns = options.includeSensitiveData
     ? selectedColumns
     : selectedColumns.filter((c) => !c.isSensitive);
@@ -41,12 +39,8 @@ function convertToCSV(
   if (exportColumns.length === 0) {
     throw new Error("No columns selected for export");
   }
-
-  // Header row
   const headers = exportColumns.map((c) => escapeCSVValue(c.header));
   const csvLines = [headers.join(",")];
-
-  // Data rows
   data.forEach((row) => {
     const values = exportColumns.map((col) => {
       const value = row[col.id];
@@ -80,8 +74,6 @@ function convertToJSON(
   const selectedColumns = options.selectedColumns
     ? columns.filter((c) => options.selectedColumns!.includes(c.id))
     : columns;
-
-  // Filter out sensitive columns if needed
   const exportColumns = options.includeSensitiveData
     ? selectedColumns
     : selectedColumns.filter((c) => !c.isSensitive);
@@ -89,8 +81,6 @@ function convertToJSON(
   if (exportColumns.length === 0) {
     throw new Error("No columns selected for export");
   }
-
-  // Create objects with only selected columns
   const exportData = data.map((row) => {
     const obj: Record<string, unknown> = {};
     exportColumns.forEach((col) => {
@@ -144,8 +134,6 @@ export async function exportData(
       }
 
       case "xlsx": {
-        // For Excel export, we'd need a library like xlsx or exceljs
-        // For now, fall back to CSV
         console.warn("XLSX export not yet implemented, exporting as CSV");
         const csv = convertToCSV(data, columns, options);
         downloadFile(csv, `${filename}.csv`, "text/csv;charset=utf-8;");
@@ -184,16 +172,12 @@ export function getExportStats(
     : selectedColumns.filter((c) => !c.isSensitive);
 
   const sensitiveColumns = selectedColumns.filter((c) => c.isSensitive).length;
-
-  // Rough size estimation
   let estimatedBytes = 0;
   if (options.format === "csv") {
-    // Estimate CSV size
     const headerSize = exportColumns.reduce((sum, col) => sum + col.header.length, 0);
     const avgRowSize = exportColumns.length * 20; // Assume avg 20 chars per cell
     estimatedBytes = headerSize + data.length * avgRowSize;
   } else if (options.format === "json") {
-    // JSON is typically larger due to formatting
     const avgRowSize = exportColumns.length * 30;
     estimatedBytes = data.length * avgRowSize * 1.5;
   }

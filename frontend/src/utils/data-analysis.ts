@@ -13,15 +13,11 @@ export interface ColumnStatistics {
   columnId: string;
   columnName: string;
   type: ColumnMetadata["type"];
-
-  // Basic stats
   totalValues: number;
   uniqueValues: number;
   nullCount: number;
   emptyCount: number;
   completeness: number; // Percentage (0-100)
-
-  // Type-specific stats
   numericStats?: {
     min: number;
     max: number;
@@ -42,8 +38,6 @@ export interface ColumnStatistics {
     latest: string;
     range: string;
   };
-
-  // Data quality
   qualityScore: number; // 0-100
   qualityIssues: string[];
 }
@@ -78,21 +72,13 @@ export function calculateColumnStatistics(
 ): ColumnStatistics {
   const values = data.map((row) => row[column.id]);
   const totalValues = values.length;
-
-  // Count nulls and empties
   const nullCount = values.filter((v) => v === null || v === undefined).length;
   const emptyCount = values.filter((v) => v === "").length;
   const validValues = values.filter((v) => v !== null && v !== undefined && v !== "");
-
-  // Calculate completeness
   const completeness = totalValues > 0
     ? ((totalValues - nullCount - emptyCount) / totalValues) * 100
     : 0;
-
-  // Unique values
   const uniqueValues = new Set(validValues).size;
-
-  // Quality issues
   const qualityIssues: string[] = [];
 
   if (completeness < 50) {
@@ -104,8 +90,6 @@ export function calculateColumnStatistics(
   if (uniqueValues === 1 && validValues.length > 0) {
     qualityIssues.push("All values are identical");
   }
-
-  // Base statistics
   const stats: ColumnStatistics = {
     columnId: column.id,
     columnName: column.header,
@@ -118,8 +102,6 @@ export function calculateColumnStatistics(
     qualityScore: 0,
     qualityIssues,
   };
-
-  // Type-specific statistics
   if (column.type === "number") {
     const numericValues = validValues
       .map((v) => parseFloat(String(v)))
@@ -130,8 +112,6 @@ export function calculateColumnStatistics(
       const sum = numericValues.reduce((a, b) => a + b, 0);
       const mean = sum / numericValues.length;
       const median = sorted[Math.floor(sorted.length / 2)];
-
-      // Standard deviation
       const squareDiffs = numericValues.map((value) => Math.pow(value - mean, 2));
       const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / numericValues.length;
       const stdDev = Math.sqrt(avgSquareDiff);
@@ -152,8 +132,6 @@ export function calculateColumnStatistics(
       const minLength = Math.min(...lengths);
       const maxLength = Math.max(...lengths);
       const avgLength = Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length);
-
-      // Most common values (top 5)
       const valueCounts = new Map<string, number>();
       stringValues.forEach((v) => {
         valueCounts.set(v, (valueCounts.get(v) || 0) + 1);
@@ -170,8 +148,6 @@ export function calculateColumnStatistics(
         avgLength,
         mostCommon,
       };
-
-      // Quality checks for specific types
       if (column.type === "email") {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const invalidEmails = stringValues.filter((v) => !emailRegex.test(v)).length;
@@ -207,8 +183,6 @@ export function calculateColumnStatistics(
         range: `${rangeDays} days`,
       };
     }
-
-    // Check for invalid dates
     const invalidDates = validValues.filter(
       (v) => isNaN(new Date(String(v)).getTime())
     ).length;
@@ -216,17 +190,9 @@ export function calculateColumnStatistics(
       qualityIssues.push(`${invalidDates} invalid date format(s)`);
     }
   }
-
-  // Calculate quality score (0-100)
   let qualityScore = 100;
-
-  // Deduct for missing values
   qualityScore -= (nullCount + emptyCount) / totalValues * 50;
-
-  // Deduct for quality issues
   qualityScore -= qualityIssues.length * 10;
-
-  // Deduct if all values are the same (likely an error)
   if (uniqueValues === 1 && validValues.length > 1) {
     qualityScore -= 30;
   }
@@ -247,8 +213,6 @@ export function calculateDatasetStatistics(
 
   const totalRows = data.length;
   const totalColumns = columns.length;
-
-  // Calculate overall completeness
   const totalCells = totalRows * totalColumns;
   const totalMissing = columnStats.reduce(
     (sum, stat) => sum + stat.nullCount + stat.emptyCount,
@@ -257,20 +221,12 @@ export function calculateDatasetStatistics(
   const completeness = totalCells > 0
     ? ((totalCells - totalMissing) / totalCells) * 100
     : 0;
-
-  // Calculate overall quality score
   const avgQualityScore = columnStats.length > 0
     ? columnStats.reduce((sum, stat) => sum + stat.qualityScore, 0) / columnStats.length
     : 0;
-
-  // Count sensitive data
   const sensitiveColumns = columns.filter((c) => c.isSensitive).length;
   const sensitiveDataPoints = data.length * sensitiveColumns;
-
-  // Collect data quality issues
   const dataQualityIssues: DatasetStatistics["dataQualityIssues"] = [];
-
-  // High severity issues
   const lowCompletenessColumns = columnStats
     .filter((s) => s.completeness < 50)
     .map((s) => s.columnName);
@@ -292,8 +248,6 @@ export function calculateDatasetStatistics(
       affectedColumns: lowQualityColumns,
     });
   }
-
-  // Medium severity issues
   const someIssuesColumns = columnStats
     .filter((s) => s.qualityIssues.length > 0 && s.qualityScore >= 50)
     .map((s) => s.columnName);
@@ -304,8 +258,6 @@ export function calculateDatasetStatistics(
       affectedColumns: someIssuesColumns,
     });
   }
-
-  // Low severity issues
   const missingDataColumns = columnStats
     .filter((s) => s.completeness < 100 && s.completeness >= 90)
     .map((s) => s.columnName);

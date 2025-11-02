@@ -53,8 +53,6 @@ export function Layout({ children, className }: LayoutProps) {
   const handleMobileNavClick = () => {
     setMobileMenuOpen(false);
   };
-
-  // Filter navigation items based on authentication
   const mobileNavItems = navigationItems.filter(
     (item) => !item.protected || isAuthenticated
   );

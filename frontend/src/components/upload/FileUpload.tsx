@@ -84,8 +84,6 @@ export function FileUpload({
     (fileList: FileList | File[]) => {
       const newFiles: UploadedFile[] = [];
       const newErrors: FileUploadError[] = [];
-
-      // Check if adding these files would exceed maxFiles
       const totalFiles = files.length + fileList.length;
       if (totalFiles > maxFiles) {
         newErrors.push({
@@ -97,7 +95,6 @@ export function FileUpload({
       }
 
       Array.from(fileList).forEach((file) => {
-        // Validate file
         const validation = validateFile(file, maxFileSize, acceptedFormats);
 
         if (validation.isValid) {
@@ -127,7 +124,6 @@ export function FileUpload({
 
       if (newErrors.length > 0) {
         setErrors(newErrors);
-        // Clear errors after 5 seconds
         setTimeout(() => setErrors([]), 5000);
       }
     },
@@ -144,7 +140,6 @@ export function FileUpload({
     if (fileList && fileList.length > 0) {
       processFiles(fileList);
     }
-    // Reset input value to allow selecting the same file again
     event.target.value = "";
   };
 

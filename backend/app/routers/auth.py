@@ -36,19 +36,14 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
 
     Returns access token and user information
     """
-    # Check if user already exists
     existing_user = AuthService.get_user_by_email(db, user_data.email)
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
         )
-
-    # Create new user
     new_user = AuthService.create_user(
         db=db, email=user_data.email, name=user_data.name, password=user_data.password
     )
-
-    # Generate access token
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = AuthService.create_access_token(
         data={"sub": new_user.email, "user_id": new_user.id},
@@ -72,7 +67,6 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
 
     Returns access token and user information
     """
-    # Authenticate user
     user = AuthService.authenticate_user(db, credentials.email, credentials.password)
     if not user:
         raise HTTPException(
@@ -80,8 +74,6 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-    # Generate access token
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = AuthService.create_access_token(
         data={"sub": user.email, "user_id": user.id}, expires_delta=access_token_expires

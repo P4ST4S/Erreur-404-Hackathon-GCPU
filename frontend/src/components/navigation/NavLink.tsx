@@ -40,8 +40,6 @@ export function NavLink({
 }: NavLinkProps) {
   const location = useLocation();
   const isActive = location.pathname === href;
-
-  // Sidebar variant - for desktop sidebar navigation
   if (variant === "sidebar") {
     return (
       <Link
@@ -61,8 +59,6 @@ export function NavLink({
       </Link>
     );
   }
-
-  // Header variant - for top navigation bar
   if (variant === "header") {
     return (
       <Link
@@ -80,8 +76,6 @@ export function NavLink({
       </Link>
     );
   }
-
-  // Mobile variant - for mobile sheet menu
   return (
     <Link
       to={href}

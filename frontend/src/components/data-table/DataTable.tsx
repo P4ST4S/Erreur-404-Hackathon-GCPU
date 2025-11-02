@@ -49,13 +49,10 @@ export function DataTable<TData extends MedicalDataRow>({
   className,
   height = "600px",
 }: DataTableProps<TData>) {
-  // Merge user config with defaults
   const config = useMemo(
     () => ({ ...DEFAULT_TABLE_CONFIG, ...userConfig }),
     [userConfig]
   );
-
-  // Table state
   const [sorting, setSorting] = useState<TableState["sorting"]>([]);
   const [columnFilters, setColumnFilters] = useState<TableState["columnFilters"]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -64,8 +61,6 @@ export function DataTable<TData extends MedicalDataRow>({
     pageIndex: 0,
     pageSize: config.defaultPageSize,
   });
-
-  // Initialize table
   const table = useReactTable({
     data,
     columns,
@@ -89,16 +84,10 @@ export function DataTable<TData extends MedicalDataRow>({
     columnResizeMode: "onChange",
     manualPagination: false,
   });
-
-  // Get rows for rendering
   const rows = config.enablePagination ? table.getRowModel().rows : table.getRowModel().rows;
-
-  // Table container ref for virtualization
   const tableContainerRef = useMemo(() => {
     return { current: null as HTMLDivElement | null };
   }, []);
-
-  // Virtual row renderer
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => tableContainerRef.current,
@@ -106,8 +95,6 @@ export function DataTable<TData extends MedicalDataRow>({
     overscan: config.virtualScrollConfig.overscan,
     enabled: config.enableVirtualization && !config.enablePagination,
   });
-
-  // Calculate virtual items
   const virtualRows = config.enableVirtualization && !config.enablePagination
     ? rowVirtualizer.getVirtualItems()
     : rows.map((_, index) => ({ index, start: 0, size: 0 }));
@@ -115,8 +102,6 @@ export function DataTable<TData extends MedicalDataRow>({
   const totalSize = config.enableVirtualization && !config.enablePagination
     ? rowVirtualizer.getTotalSize()
     : 0;
-
-  // Padding for virtual scrolling
   const paddingTop = virtualRows.length > 0 ? virtualRows[0]?.start || 0 : 0;
   const paddingBottom =
     virtualRows.length > 0

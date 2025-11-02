@@ -60,14 +60,12 @@ class CleanupService:
         """
         try:
             if self.use_local:
-                # Delete local file
                 full_path = os.path.join(self.storage_path, storage_path)
                 if os.path.exists(full_path):
                     os.remove(full_path)
                     logger.info(f"Deleted file from local storage: {storage_path}")
                 return True
             else:
-                # Delete from GCS
                 if self.bucket:
                     blob = self.bucket.blob(storage_path)
                     blob.delete()
@@ -91,8 +89,6 @@ class CleanupService:
             Dictionary with cleanup statistics
         """
         now = datetime.now(timezone.utc)
-
-        # Find expired files
         expired_files = (
             db.query(UploadedFile)
             .filter(
@@ -115,11 +111,8 @@ class CleanupService:
 
         for file in expired_files:
             try:
-                # Delete from storage
                 if self.delete_file_from_storage(file.file_path):
                     stats["deleted_from_gcs"] += 1
-
-                    # Delete from database
                     db.delete(file)
                     stats["deleted_from_db"] += 1
 
@@ -133,8 +126,6 @@ class CleanupService:
             except Exception as e:
                 stats["failed"] += 1
                 logger.error(f"Error deleting file {file.id}: {str(e)}")
-
-        # Commit all deletions
         try:
             db.commit()
             logger.info(f"Cleanup completed: {stats}")
@@ -156,7 +147,6 @@ class CleanupService:
         Returns:
             Number of deleted datasets
         """
-        # Find datasets with no files
         datasets = db.query(Dataset).all()
         deleted_count = 0
 
@@ -190,17 +180,11 @@ def run_cleanup_task():
     This function is called by the scheduler
     """
     logger.info("Starting scheduled cleanup task...")
-
-    # Create database session
     db = SessionLocal()
 
     try:
         cleanup_service = CleanupService()
-
-        # Cleanup expired files
         file_stats = cleanup_service.cleanup_expired_files(db)
-
-        # Cleanup empty datasets
         empty_datasets = cleanup_service.cleanup_empty_datasets(db)
 
         logger.info(

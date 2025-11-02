@@ -22,12 +22,8 @@ import {
 export function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  // State
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [datasetStats, setDatasetStats] = useState<DatasetStatistics | null>(null);
-
-  // Mock recent datasets
   const recentDatasets: RecentDataset[] = [
     {
       id: "1",
@@ -60,8 +56,6 @@ export function Dashboard() {
       qualityScore: 95,
     },
   ];
-
-  // Handlers
   const handleLoadDemoData = () => {
     const { data, columns } = generateSampleData(100);
     const stats = calculateDatasetStatistics(data, columns);
@@ -71,7 +65,6 @@ export function Dashboard() {
 
   const handleDownload = (datasetId: string) => {
     console.log("Download dataset:", datasetId);
-    // TODO: Implement download functionality
   };
 
   return (

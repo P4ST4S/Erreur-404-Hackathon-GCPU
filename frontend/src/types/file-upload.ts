@@ -72,20 +72,15 @@ export interface FileValidationResult {
  * Supported medical file formats
  */
 export const MEDICAL_FILE_FORMATS = {
-  // Structured data formats
   CSV: ".csv",
   JSON: ".json",
   EXCEL: [".xlsx", ".xls"],
   FHIR: ".fhir",
   XML: ".xml",
-
-  // Document formats
   PDF: ".pdf",
   DOCX: ".docx",
   DOC: ".doc",
   TXT: ".txt",
-
-  // Image formats (for scanned documents)
   PNG: ".png",
   JPG: [".jpg", ".jpeg"],
   TIFF: [".tiff", ".tif"],
@@ -95,7 +90,6 @@ export const MEDICAL_FILE_FORMATS = {
  * MIME types for medical file formats
  */
 export const MEDICAL_MIME_TYPES = {
-  // Structured data
   "text/csv": "CSV",
   "application/json": "JSON",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Excel",
@@ -103,15 +97,11 @@ export const MEDICAL_MIME_TYPES = {
   "application/fhir+json": "FHIR",
   "application/xml": "XML",
   "text/xml": "XML",
-
-  // Documents
   "application/pdf": "PDF",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
     "DOCX",
   "application/msword": "DOC",
   "text/plain": "TXT",
-
-  // Images
   "image/png": "PNG",
   "image/jpeg": "JPEG",
   "image/tiff": "TIFF",

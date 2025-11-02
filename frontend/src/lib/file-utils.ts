@@ -28,7 +28,6 @@ export function validateFile(
   maxSize: number,
   acceptedFormats: string[]
 ): FileValidationResult {
-  // Check file size
   if (file.size > maxSize) {
     return {
       isValid: false,
@@ -36,8 +35,6 @@ export function validateFile(
       message: `File size (${formatFileSize(file.size)}) exceeds maximum allowed size (${formatFileSize(maxSize)})`,
     };
   }
-
-  // Check file format
   const fileExtension = getFileExtension(file.name);
   const isValidFormat = acceptedFormats.some((format) =>
     fileExtension.toLowerCase().endsWith(format.toLowerCase())
@@ -50,8 +47,6 @@ export function validateFile(
       message: `File type "${fileExtension}" is not supported. Accepted formats: ${acceptedFormats.join(", ")}`,
     };
   }
-
-  // Additional validation for medical file formats
   const validation = validateMedicalFileFormat(file);
   if (!validation.isValid) {
     return validation;
@@ -70,10 +65,7 @@ export function validateFile(
  */
 function validateMedicalFileFormat(file: File): FileValidationResult {
   const extension = getFileExtension(file.name).toLowerCase();
-
-  // Special validation for FHIR files
   if (extension === ".fhir" || file.type === "application/fhir+json") {
-    // FHIR files should be JSON
     if (!file.type.includes("json") && extension !== ".json") {
       return {
         isValid: false,
@@ -82,8 +74,6 @@ function validateMedicalFileFormat(file: File): FileValidationResult {
       };
     }
   }
-
-  // Validate Excel files
   if (extension === ".xlsx" || extension === ".xls") {
     const validExcelTypes = [
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -162,8 +152,6 @@ export function getFileExtension(filename: string): string {
  */
 export function getFileType(file: File): string {
   const extension = getFileExtension(file.name).toLowerCase();
-
-  // Map extensions to human-readable types
   const typeMap: Record<string, string> = {
     ".csv": "CSV",
     ".json": "JSON",
@@ -301,8 +289,6 @@ export async function validateFhirFile(
   try {
     const content = await readFileAsText(file);
     const data = JSON.parse(content);
-
-    // Basic FHIR validation - check for resourceType
     if (!data.resourceType) {
       return {
         isValid: false,

@@ -1,6 +1,4 @@
-# Automatic build and deployment to Cloud Run
 steps:
-  # Build the backend Docker image
   - name: "gcr.io/cloud-builders/docker"
     args:
       [
@@ -11,12 +9,8 @@ steps:
         "infra/Dockerfile.backend",
         ".",
       ]
-
-  # Push to Container Registry
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/$PROJECT_ID/hackathon-backend"]
-
-  # Deploy to Cloud Run
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     args:
       [
