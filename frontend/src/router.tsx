@@ -8,6 +8,7 @@ import { Dashboard } from "@/pages/Dashboard";
 import { Anonymize } from "@/pages/Anonymize";
 import { History } from "@/pages/History";
 import { NotFound } from "@/pages/NotFound";
+import ConflictResolution from "@/pages/ConflictResolution";
 
 /**
  * Application router configuration
@@ -48,7 +49,29 @@ export const router = createBrowserRouter(
       errorElement: <RouteErrorBoundary />,
     },
     {
+      path: "/conflict/:datasetId",
+      element: (
+        <Layout>
+          <ProtectedRoute>
+            <ConflictResolution />
+          </ProtectedRoute>
+        </Layout>
+      ),
+      errorElement: <RouteErrorBoundary />,
+    },
+    {
       path: "/anonymize",
+      element: (
+        <Layout>
+          <ProtectedRoute>
+            <Anonymize />
+          </ProtectedRoute>
+        </Layout>
+      ),
+      errorElement: <RouteErrorBoundary />,
+    },
+    {
+      path: "/anonymize/:datasetId",
       element: (
         <Layout>
           <ProtectedRoute>
@@ -141,7 +164,6 @@ export const router = createBrowserRouter(
   ],
   {
     future: {
-      // Enable v7 future flags for better compatibility
       v7_relativeSplatPath: true,
       v7_fetcherPersist: true,
       v7_normalizeFormMethod: true,

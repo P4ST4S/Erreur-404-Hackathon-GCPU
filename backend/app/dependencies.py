@@ -11,8 +11,6 @@ from sqlalchemy.orm import Session
 from app.services.auth import AuthService
 from app.persistence.database import get_db
 from app.persistence.models import User, UserRole
-
-# Security scheme for JWT bearer token
 security = HTTPBearer()
 
 
@@ -44,8 +42,6 @@ async def get_current_user(
         HTTPException 401: If token is invalid or user not found
     """
     token = credentials.credentials
-    
-    # Decode and validate token
     payload = AuthService.decode_token(token)
     if payload is None:
         raise HTTPException(
@@ -53,8 +49,6 @@ async def get_current_user(
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    # Extract user email from token
     email: str = payload.get("sub")
     if email is None:
         raise HTTPException(
@@ -62,8 +56,6 @@ async def get_current_user(
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    # Get user from database
     user = AuthService.get_user_by_email(db, email)
     if user is None:
         raise HTTPException(
@@ -91,7 +83,6 @@ async def get_current_admin(
             user_id: int,
             admin: User = Depends(get_current_admin)
         ):
-            # Only admins can access this endpoint
             ...
         ```
     
@@ -125,7 +116,6 @@ async def get_current_auditor(
         ```python
         @router.get("/audit/logs")
         async def get_logs(auditor: User = Depends(get_current_auditor)):
-            # Only auditors and admins can access this
             ...
         ```
     

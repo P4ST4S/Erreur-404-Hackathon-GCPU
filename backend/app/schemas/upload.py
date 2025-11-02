@@ -12,7 +12,7 @@ class DatasetCreateRequest(BaseModel):
     Request schema for creating a new dataset
     """
     name: str = Field(..., min_length=1, max_length=255, description="Name of the dataset")
-    
+
     @field_validator("name")
     @classmethod
     def validate_name(cls, v: str) -> str:
@@ -24,13 +24,11 @@ class DatasetCreateRequest(BaseModel):
         v = v.strip()
         if not v:
             raise ValueError("Dataset name cannot be empty")
-        
-        # Check for valid characters
         if not re.match(r'^[a-zA-Z0-9\s\-_]+$', v):
             raise ValueError(
                 "Dataset name can only contain letters, numbers, spaces, hyphens, and underscores"
             )
-        
+
         return v
 
 
@@ -44,7 +42,7 @@ class FileUploadResponse(BaseModel):
     row_count: Optional[int] = None
     column_count: Optional[int] = None
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -61,7 +59,7 @@ class DatasetResponse(BaseModel):
     file_count: int = 0
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 
@@ -83,6 +81,7 @@ class ColumnInfo(BaseModel):
     dtype: str
     file_id: int
     file_name: str
+    samples: Optional[List[str]] = None  # Sample values for context
 
 
 class ColumnConflict(BaseModel):
@@ -114,7 +113,7 @@ class ColumnResolution(BaseModel):
     action: str = Field(..., description="Action: 'merge', 'keep', 'remove', 'rename'")
     target_name: Optional[str] = None  # For rename or merge actions
     target_type: Optional[str] = None  # For merge actions with type conversion
-    
+
     @field_validator("action")
     @classmethod
     def validate_action(cls, v: str) -> str:

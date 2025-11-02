@@ -80,9 +80,6 @@ class TestMergeEndpoint:
         db.commit()
         db.refresh(uploaded_file)
         return uploaded_file
-
-    # ==================== Test Cases ====================
-
     def test_merge_with_no_conflicts(
         self,
         client: TestClient,
@@ -93,7 +90,6 @@ class TestMergeEndpoint:
         """
         Test merging files with identical columns (no conflicts)
         """
-        # Create two CSV files with identical structure
         data1 = {
             "user_id": [1, 2, 3],
             "name": ["Alice", "Bob", "Charlie"],
@@ -104,16 +100,10 @@ class TestMergeEndpoint:
             "name": ["David", "Eve", "Frank"],
             "age": [40, 45, 50]
         }
-
-        # Save files
         path1 = self.create_csv_file(temp_storage, test_dataset.id, "file1.csv", data1)
         path2 = self.create_csv_file(temp_storage, test_dataset.id, "file2.csv", data2)
-
-        # Create database records
         self.create_uploaded_file_record(db, test_dataset.id, "file1.csv", path1, data1)
         self.create_uploaded_file_record(db, test_dataset.id, "file2.csv", path2, data2)
-
-        # Merge request with no column mapping needed (columns are identical)
         merge_request = {
             "dataset_id": test_dataset.id,
             "merges": {}  # No renaming needed
@@ -126,16 +116,12 @@ class TestMergeEndpoint:
         assert data["status"] == "success"
         assert data["merged_file_id"] is not None
         assert "6" in data["message"]  # Should have 6 total rows
-
-        # Check that merged file was created
         merged_file = db.query(UploadedFile).filter(
             UploadedFile.id == data["merged_file_id"]
         ).first()
         assert merged_file is not None
         assert merged_file.row_count == 6
         assert merged_file.column_count == 3
-
-        # Check dataset status updated to RESOLVED
         db.refresh(test_dataset)
         assert test_dataset.status == DatasetStatus.RESOLVED
 
@@ -149,7 +135,6 @@ class TestMergeEndpoint:
         """
         Test merging files with conflicting column names
         """
-        # Create files with different column names that should be merged
         data1 = {
             "id": [1, 2, 3],
             "full_name": ["Alice", "Bob", "Charlie"],
@@ -160,16 +145,10 @@ class TestMergeEndpoint:
             "name": ["David", "Eve", "Frank"],
             "age": [40, 45, 50]
         }
-
-        # Save files
         path1 = self.create_csv_file(temp_storage, test_dataset.id, "file1.csv", data1)
         path2 = self.create_csv_file(temp_storage, test_dataset.id, "file2.csv", data2)
-
-        # Create database records
         self.create_uploaded_file_record(db, test_dataset.id, "file1.csv", path1, data1)
         self.create_uploaded_file_record(db, test_dataset.id, "file2.csv", path2, data2)
-
-        # Merge request with column mapping
         merge_request = {
             "dataset_id": test_dataset.id,
             "merges": {
@@ -185,8 +164,6 @@ class TestMergeEndpoint:
         data = response.json()
         assert data["status"] == "success"
         assert data["merged_file_id"] is not None
-
-        # Verify merged file
         merged_file = db.query(UploadedFile).filter(
             UploadedFile.id == data["merged_file_id"]
         ).first()
@@ -203,29 +180,20 @@ class TestMergeEndpoint:
         """
         Test merging with some columns not present in all files (should fill with NaN)
         """
-        # File 1 has columns A, B, C
         data1 = {
             "col_a": [1, 2, 3],
             "col_b": ["x", "y", "z"],
             "col_c": [10, 20, 30]
         }
-
-        # File 2 has columns A, B, D (missing C, has extra D)
         data2 = {
             "col_a": [4, 5, 6],
             "col_b": ["p", "q", "r"],
             "col_d": [100, 200, 300]
         }
-
-        # Save files
         path1 = self.create_csv_file(temp_storage, test_dataset.id, "file1.csv", data1)
         path2 = self.create_csv_file(temp_storage, test_dataset.id, "file2.csv", data2)
-
-        # Create database records
         self.create_uploaded_file_record(db, test_dataset.id, "file1.csv", path1, data1)
         self.create_uploaded_file_record(db, test_dataset.id, "file2.csv", path2, data2)
-
-        # Merge request
         merge_request = {
             "dataset_id": test_dataset.id,
             "merges": {}  # No renaming
@@ -236,8 +204,6 @@ class TestMergeEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "success"
-
-        # Verify merged file has 4 columns (A, B, C, D)
         merged_file = db.query(UploadedFile).filter(
             UploadedFile.id == data["merged_file_id"]
         ).first()
@@ -263,16 +229,10 @@ class TestMergeEndpoint:
             "id": [4, 5, 6],
             "name": ["David", "Eve", "Frank"]
         }
-
-        # Save files
         path1 = self.create_csv_file(temp_storage, test_dataset.id, "file1.csv", data1)
         path2 = self.create_csv_file(temp_storage, test_dataset.id, "file2.csv", data2)
-
-        # Create database records
         self.create_uploaded_file_record(db, test_dataset.id, "file1.csv", path1, data1)
         self.create_uploaded_file_record(db, test_dataset.id, "file2.csv", path2, data2)
-
-        # Merge request with non-existent columns
         merge_request = {
             "dataset_id": test_dataset.id,
             "merges": {
@@ -283,8 +243,6 @@ class TestMergeEndpoint:
         }
 
         response = client.post("/api/v1/merge", json=merge_request)
-
-        # Should succeed - non-existent columns are just ignored
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "success"
@@ -300,35 +258,24 @@ class TestMergeEndpoint:
         Test merging files with different data types for same column
         Should attempt conversion
         """
-        # File 1 has numeric age
         data1 = {
             "id": [1, 2, 3],
             "age": [25, 30, 35]  # integers
         }
-
-        # File 2 has string age (but convertible)
         data2 = {
             "id": [4, 5, 6],
             "age": ["40", "45", "50"]  # strings representing numbers
         }
-
-        # Save files
         path1 = self.create_csv_file(temp_storage, test_dataset.id, "file1.csv", data1)
         path2 = self.create_csv_file(temp_storage, test_dataset.id, "file2.csv", data2)
-
-        # Create database records
         self.create_uploaded_file_record(db, test_dataset.id, "file1.csv", path1, data1)
         self.create_uploaded_file_record(db, test_dataset.id, "file2.csv", path2, data2)
-
-        # Merge request
         merge_request = {
             "dataset_id": test_dataset.id,
             "merges": {}
         }
 
         response = client.post("/api/v1/merge", json=merge_request)
-
-        # Should succeed with type conversion
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "success"
@@ -360,7 +307,6 @@ class TestMergeEndpoint:
         """
         Test merging with dataset in wrong status (not PENDING_RESOLUTION or RESOLVED)
         """
-        # Create dataset with UPLOADING status
         dataset = Dataset(
             name="Uploading Dataset",
             owner_id=test_user.id,
@@ -369,8 +315,6 @@ class TestMergeEndpoint:
         db.add(dataset)
         db.commit()
         db.refresh(dataset)
-
-        # Create a dummy file
         data = {"id": [1, 2, 3]}
         path = self.create_csv_file(temp_storage, dataset.id, "file.csv", data)
         self.create_uploaded_file_record(db, dataset.id, "file.csv", path, data)
@@ -414,7 +358,6 @@ class TestMergeEndpoint:
         """
         Test merging a dataset that is already RESOLVED (should be allowed)
         """
-        # Create dataset with RESOLVED status
         dataset = Dataset(
             name="Resolved Dataset",
             owner_id=test_user.id,
@@ -423,8 +366,6 @@ class TestMergeEndpoint:
         db.add(dataset)
         db.commit()
         db.refresh(dataset)
-
-        # Create files
         data1 = {"id": [1, 2], "value": [10, 20]}
         data2 = {"id": [3, 4], "value": [30, 40]}
 
@@ -440,8 +381,6 @@ class TestMergeEndpoint:
         }
 
         response = client.post("/api/v1/merge", json=merge_request)
-
-        # Should succeed
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "success"
@@ -474,8 +413,6 @@ class TestMergeEndpoint:
         assert response.status_code == 200
         result = response.json()
         assert result["status"] == "success"
-
-        # Should have same number of rows as original
         merged_file = db.query(UploadedFile).filter(
             UploadedFile.id == result["merged_file_id"]
         ).first()
@@ -491,7 +428,6 @@ class TestMergeEndpoint:
         """
         Test merging with complex column mapping across multiple files
         """
-        # Three files with different naming conventions
         data1 = {
             "ID": [1, 2],
             "FirstName": ["Alice", "Bob"],
@@ -507,18 +443,12 @@ class TestMergeEndpoint:
             "name": ["Eve", "Frank"],
             "email_address": ["eve@test.com", "frank@test.com"]
         }
-
-        # Save files
         path1 = self.create_csv_file(temp_storage, test_dataset.id, "file1.csv", data1)
         path2 = self.create_csv_file(temp_storage, test_dataset.id, "file2.csv", data2)
         path3 = self.create_csv_file(temp_storage, test_dataset.id, "file3.csv", data3)
-
-        # Create database records
         self.create_uploaded_file_record(db, test_dataset.id, "file1.csv", path1, data1)
         self.create_uploaded_file_record(db, test_dataset.id, "file2.csv", path2, data2)
         self.create_uploaded_file_record(db, test_dataset.id, "file3.csv", path3, data3)
-
-        # Complex merge mapping
         merge_request = {
             "dataset_id": test_dataset.id,
             "merges": {
@@ -533,15 +463,11 @@ class TestMergeEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "success"
-
-        # Should have 6 rows and 3 columns
         merged_file = db.query(UploadedFile).filter(
             UploadedFile.id == data["merged_file_id"]
         ).first()
         assert merged_file.row_count == 6
         assert merged_file.column_count == 3
-
-        # Verify the actual merged file content
         full_path = os.path.join(temp_storage, merged_file.file_path)
         merged_df = pd.read_csv(full_path)
 
@@ -580,13 +506,9 @@ class TestMergeEndpoint:
 
         response = client.post("/api/v1/merge", json=merge_request)
         assert response.status_code == 200
-
-        # Should now have 3 files (2 original + 1 merged)
         final_file_count = db.query(UploadedFile).filter(
             UploadedFile.dataset_id == test_dataset.id
         ).count()
         assert final_file_count == 3
-
-        # Original files should still exist
         assert db.query(UploadedFile).filter(UploadedFile.id == file1.id).first() is not None
         assert db.query(UploadedFile).filter(UploadedFile.id == file2.id).first() is not None

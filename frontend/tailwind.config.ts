@@ -6,13 +6,11 @@ import type { Config } from 'tailwindcss';
  * This file only contains content paths and plugins
  */
 const config: Config = {
-  // Scan all component and page files for class names
   content: [
     './index.html',
     './src/**/*.{ts,tsx,js,jsx}',
   ],
 
-  // Include tailwindcss-animate plugin for additional animations
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
 

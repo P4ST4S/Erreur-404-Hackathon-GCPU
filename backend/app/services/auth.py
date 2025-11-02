@@ -16,8 +16,6 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.persistence.models import User, UserRole
-
-# Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 

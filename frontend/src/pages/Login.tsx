@@ -17,8 +17,6 @@ export function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
-  // Get the page user was trying to access
   const from = (location.state as any)?.from?.pathname || "/dashboard";
 
   const handleSubmit = async (e: FormEvent) => {

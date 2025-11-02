@@ -145,8 +145,6 @@ class VertexAIService:
             Dict with agent's analysis and recommendations
         """
         logger.info(f"Analyzing file: {filename}")
-
-        # Create prompt for the agent
         prompt = f"""
         Analyze this medical file and recommend an anonymization strategy:
         
@@ -168,32 +166,19 @@ class VertexAIService:
         """
 
         try:
-            # Start chat with the agent
             chat = self.model.start_chat()
-
-            # Send message with tools
             response = chat.send_message(prompt, tools=self.tools)
-
-            # Handle function calls if agent wants to use tools
             while response.candidates[0].content.parts[0].function_call:
                 function_call = response.candidates[0].content.parts[0].function_call
                 logger.info(f"Agent calling function: {function_call.name}")
-
-                # Execute the requested function
                 function_response = await self._execute_function(function_call)
-
-                # Send function result back to agent
                 response = chat.send_message(
                     Part.from_function_response(
                         name=function_call.name, response={"result": function_response}
                     )
                 )
-
-            # Extract final text response
             result = response.text
             logger.info("File analysis completed")
-
-            # Try to parse as JSON, otherwise return as text
             try:
                 return json.loads(result)
             except json.JSONDecodeError:
@@ -378,24 +363,16 @@ class VertexAIService:
         args = dict(function_call.args)
 
         logger.info(f"Executing function: {function_name}")
-
-        # Placeholder - you'll implement actual API calls
         if function_name == "inspect_with_dlp":
-            # TODO: Call actual DLP API
             return {"findings": ["EMAIL_ADDRESS", "PHONE_NUMBER"], "count": 5}
 
         elif function_name == "analyze_healthcare":
-            # TODO: Call actual Healthcare NL API
             return {"entities": ["PERSON", "DATE", "DIAGNOSIS"], "count": 12}
 
         elif function_name == "calculate_risk":
-            # TODO: Calculate actual k-anonymity
             return {"k_anonymity": 8, "risk_level": "low"}
 
         return {"error": "Function not implemented"}
-
-
-# Singleton instance
 _vertex_service: Optional[VertexAIService] = None
 
 

@@ -32,8 +32,6 @@ export function AdvancedSearch({
   const [searchQuery, setSearchQuery] = useState("");
   const [currentResultIndex, setCurrentResultIndex] = useState(0);
   const [caseSensitive, setCaseSensitive] = useState(false);
-
-  // Search through all data
   const searchResults = useMemo<SearchResult[]>(() => {
     if (!searchQuery.trim()) return [];
 

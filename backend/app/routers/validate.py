@@ -17,8 +17,6 @@ router = APIRouter(
     prefix="/validate",
     tags=["validate"],
 )
-
-# Initialize validation service
 validation_service = ValidationService()
 
 @router.get(
@@ -49,7 +47,6 @@ async def validate_dataset(
     - **403**: Forbidden (user not authorized)
     - **400**: Invalid dataset state or no files
     """
-    # Check if dataset exists and belongs to user
     dataset = db.query(Dataset).filter(
         Dataset.id == dataset_id,
         Dataset.owner_id == current_user.id
@@ -60,8 +57,6 @@ async def validate_dataset(
             status_code=404,
             detail="Dataset not found"
         )
-        
-    # Run validation
     try:
         return await validation_service.detect_column_conflicts(db, dataset_id)
     except HTTPException:

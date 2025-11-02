@@ -39,16 +39,10 @@ export function Anonymize() {
   const [datasetStats, setDatasetStats] = useState<DatasetStatistics | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(true);
   const [showColumnStats, setShowColumnStats] = useState(false);
-
-  // Row detail view state
   const [selectedRow, setSelectedRow] = useState<MedicalDataRow | null>(null);
   const [selectedRowIndex, setSelectedRowIndex] = useState<number>(-1);
   const [isRowDetailOpen, setIsRowDetailOpen] = useState(false);
-
-  // Export dialog state
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
-
-  // Calculate statistics when data changes
   useEffect(() => {
     if (tableData.length > 0 && columnMetadata.length > 0) {
       const stats = calculateDatasetStatistics(tableData, columnMetadata);
@@ -63,8 +57,6 @@ export function Anonymize() {
    */
   const handleFilesSelected = async (files: UploadedFile[]) => {
     setUploadedFiles((prev) => [...prev, ...files]);
-
-    // Auto-parse the first file for preview
     if (files.length > 0 && files[0].status === "success") {
       try {
         const parsed = await parseFile(files[0].file);
@@ -84,8 +76,6 @@ export function Anonymize() {
     setUploadedFiles((prev) =>
       prev.filter((file) => !fileIds.includes(file.id))
     );
-
-    // Clear preview if all files are removed
     if (uploadedFiles.length === fileIds.length) {
       setTableData([]);
       setColumnMetadata([]);
@@ -113,16 +103,7 @@ export function Anonymize() {
 
     setIsProcessing(true);
     try {
-      // TODO: Send files to backend for Vertex AI processing
-      // const response = await fetch('/api/anonymize', {
-      //   method: 'POST',
-      //   body: formData,
-      // });
-
-      // Simulate processing for now
       await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Show success message or navigate to results
       console.log("Files processed:", uploadedFiles);
       console.log("Data rows:", tableData.length);
     } catch (error) {
@@ -213,8 +194,6 @@ export function Anonymize() {
       enableSorting: true,
       enableColumnFilter: true,
     }));
-
-    // Add action column
     const actionColumn: ColumnDef<MedicalDataRow> = {
       id: "actions",
       header: "Actions",

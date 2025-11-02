@@ -23,8 +23,6 @@ export function ExportDialog({ data, columns, isOpen, onClose }: ExportDialogPro
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
-
-  // Initialize with all columns selected
   useMemo(() => {
     if (columns.length > 0 && selectedColumns.length === 0) {
       setSelectedColumns(columns.map((c) => c.id));

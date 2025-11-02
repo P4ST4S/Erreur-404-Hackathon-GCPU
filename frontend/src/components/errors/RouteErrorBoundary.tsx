@@ -29,8 +29,6 @@ import { useEffect } from "react";
 export function RouteErrorBoundary() {
   const error = useRouteError();
   const navigate = useNavigate();
-
-  // Log error in development
   useEffect(() => {
     if (import.meta.env.DEV) {
       console.error("Route error:", error);
@@ -41,14 +39,10 @@ export function RouteErrorBoundary() {
   let errorTitle = "Something went wrong";
   let errorStatus: number | undefined;
   let errorDetails = "";
-
-  // Parse different error types
   if (isRouteErrorResponse(error)) {
     errorStatus = error.status;
     errorMessage = error.statusText || errorMessage;
     errorDetails = error.data?.message || "";
-
-    // Customize based on status
     switch (error.status) {
       case 404:
         errorTitle = "Page Not Found";

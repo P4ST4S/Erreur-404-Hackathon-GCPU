@@ -40,8 +40,6 @@ export function History() {
   const [sortBy, setSortBy] = useState<"date" | "name" | "quality">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [filterStatus, setFilterStatus] = useState<"all" | "completed" | "processing" | "failed">("all");
-
-  // Mock data - replace with actual API call
   const [datasets] = useState<Dataset[]>([
     {
       id: "1",
@@ -107,7 +105,6 @@ export function History() {
 
   const handleDownload = (datasetId: string) => {
     console.log("Download dataset:", datasetId);
-    // TODO: Implement download
   };
 
   const handleView = (datasetId: string) => {
@@ -117,7 +114,6 @@ export function History() {
 
   const handleDelete = (datasetId: string) => {
     console.log("Delete dataset:", datasetId);
-    // TODO: Implement delete with confirmation
   };
 
   const toggleSort = (field: "date" | "name" | "quality") => {
@@ -128,8 +124,6 @@ export function History() {
       setSortOrder("desc");
     }
   };
-
-  // Filter and sort datasets
   const filteredDatasets = datasets
     .filter((ds) => {
       const matchesSearch = ds.name.toLowerCase().includes(searchQuery.toLowerCase());

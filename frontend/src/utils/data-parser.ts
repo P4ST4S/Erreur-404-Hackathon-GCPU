@@ -18,11 +18,7 @@ export function parseCSV(content: string): {
   if (lines.length === 0) {
     return { data: [], columns: [] };
   }
-
-  // Parse header
   const headers = parseCSVLine(lines[0]);
-
-  // Generate column metadata
   const columns: ColumnMetadata[] = headers.map((header, index) => ({
     id: `col_${index}`,
     header: header.trim(),
@@ -30,8 +26,6 @@ export function parseCSV(content: string): {
     isSensitive: isSensitiveColumn(header.toLowerCase()),
     shouldAnonymize: isSensitiveColumn(header.toLowerCase()),
   }));
-
-  // Parse data rows
   const data: MedicalDataRow[] = lines.slice(1).map((line, index) => {
     const values = parseCSVLine(line);
     const row: MedicalDataRow = { id: `row_${index}` };
@@ -85,14 +79,10 @@ export function parseJSON(content: string): {
     if (dataArray.length === 0) {
       return { data: [], columns: [] };
     }
-
-    // Extract all unique keys from all objects
     const allKeys = new Set<string>();
     dataArray.forEach((obj) => {
       Object.keys(obj).forEach((key) => allKeys.add(key));
     });
-
-    // Generate column metadata
     const columns: ColumnMetadata[] = Array.from(allKeys).map((key, index) => ({
       id: `col_${index}`,
       header: key,
@@ -100,8 +90,6 @@ export function parseJSON(content: string): {
       isSensitive: isSensitiveColumn(key.toLowerCase()),
       shouldAnonymize: isSensitiveColumn(key.toLowerCase()),
     }));
-
-    // Convert to MedicalDataRow format
     const data: MedicalDataRow[] = dataArray.map((obj, index) => ({
       id: `row_${index}`,
       ...obj,
@@ -397,7 +385,5 @@ export async function parseFile(file: File): Promise<{
   ) {
     return parseJSON(content);
   }
-
-  // Default to CSV parsing for unknown types
   return parseCSV(content);
 }

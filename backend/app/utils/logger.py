@@ -20,9 +20,6 @@ except ImportError:
     STRUCTLOG_AVAILABLE = False
 
 from app.core.config import settings
-
-
-# Context variable for request-scoped data (e.g., request_id, user_id)
 log_context: ContextVar[Dict[str, Any]] = ContextVar("log_context", default={})
 
 
@@ -42,11 +39,9 @@ def setup_logger(name: str) -> logging.Logger:
         >>> logger.info("Application started", extra={"version": "1.0.0"})
     """
     if STRUCTLOG_AVAILABLE and getattr(settings, 'USE_STRUCTURED_LOGGING', False):
-        # Configure structlog if available and enabled
         _configure_structlog()
         return structlog.get_logger(name)
     else:
-        # Fallback to standard logging
         return _configure_standard_logger(name)
 
 
@@ -86,27 +81,15 @@ def _configure_standard_logger(name: str) -> logging.Logger:
         Configured logger instance
     """
     logger = logging.getLogger(name)
-
-    # Prevent duplicate handlers
     if logger.handlers:
         return logger
-
-    # Set log level from settings or default to INFO
     log_level = getattr(settings, 'LOG_LEVEL', 'INFO').upper()
     logger.setLevel(getattr(logging, log_level))
-
-    # Create console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(getattr(logging, log_level))
-
-    # Create formatter
     formatter = _create_formatter()
     console_handler.setFormatter(formatter)
-
-    # Add handler to logger
     logger.addHandler(console_handler)
-
-    # Prevent propagation to root logger to avoid duplicate logs
     logger.propagate = False
 
     return logger
@@ -120,10 +103,8 @@ def _create_formatter() -> logging.Formatter:
         Configured logging.Formatter instance
     """
     if getattr(settings, 'LOG_JSON_FORMAT', False):
-        # JSON formatter for production
         return JsonFormatter()
     else:
-        # Human-readable formatter for development
         log_format = (
             "%(asctime)s | %(levelname)-8s | %(name)s:%(funcName)s:%(lineno)d - %(message)s"
         )
@@ -148,16 +129,10 @@ class JsonFormatter(logging.Formatter):
             "function": record.funcName,
             "line": record.lineno,
         }
-
-        # Add exception info if present
         if record.exc_info:
             log_data["exception"] = self.formatException(record.exc_info)
-
-        # Add extra fields
         if hasattr(record, "extra_data"):
             log_data.update(record.extra_data)
-
-        # Add context variables
         context = log_context.get()
         if context:
             log_data["context"] = context

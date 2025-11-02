@@ -23,8 +23,6 @@ router = APIRouter(
     prefix="/upload",
     tags=["upload"],
 )
-
-# Initialize upload service
 upload_service = UploadService()
 
 
@@ -51,7 +49,6 @@ async def upload_files(
     - **422**: Invalid dataset name or unsupported file format
     - **403**: Forbidden (user not authenticated)
     """
-    # Validate dataset name
     try:
         validated_request = DatasetCreateRequest(name=dataset_name)
     except Exception as e:
@@ -59,22 +56,17 @@ async def upload_files(
             status_code=422,
             detail=f"Invalid dataset name: {str(e)}"
         )
-    
-    # Check if files were provided
     if not files:
         raise HTTPException(
             status_code=422,
             detail="No files provided"
         )
-    
-    # Check if dataset already exists for this user
     existing_dataset = db.query(Dataset).filter(
         Dataset.name == validated_request.name,
         Dataset.owner_id == current_user.id
     ).first()
     
     if existing_dataset:
-        # Add files to existing dataset
         dataset = existing_dataset
         if dataset.status not in [DatasetStatus.UPLOADING, DatasetStatus.UPLOADED]:
             raise HTTPException(
@@ -82,14 +74,11 @@ async def upload_files(
                 detail=f"Cannot upload files to dataset in {dataset.status.value} state"
             )
     else:
-        # Create new dataset
         dataset = await upload_service.create_dataset(
             db=db,
             name=validated_request.name,
             user=current_user
         )
-    
-    # Upload files
     try:
         uploaded_files = await upload_service.upload_files(
             db=db,
@@ -103,8 +92,6 @@ async def upload_files(
             status_code=500,
             detail=f"Failed to upload files: {str(e)}"
         )
-    
-    # Prepare response
     db.refresh(dataset)
     
     dataset_response = DatasetResponse(

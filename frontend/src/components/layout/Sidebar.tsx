@@ -42,8 +42,6 @@ export function Sidebar({ className }: SidebarProps) {
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
-
-  // Filter navigation items based on authentication
   const visibleNavItems = navigationItems.filter(
     (item) => !item.protected || isAuthenticated
   );
