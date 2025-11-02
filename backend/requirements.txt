@@ -12,7 +12,7 @@ python-dotenv==1.1.1
 
 # Database
 sqlalchemy==2.0.25
-psycopg2-binary==2.9.9
+psycopg[binary]==3.2.3
 alembic==1.13.1
 
 # Authentication
@@ -31,3 +31,9 @@ google-cloud-storage==2.14.0
 
 # Scheduled tasks
 apscheduler==3.10.4
+
+# Vertex AI
+vertexai==1.71.1
+
+# Utils
+structlog==25.5.0
