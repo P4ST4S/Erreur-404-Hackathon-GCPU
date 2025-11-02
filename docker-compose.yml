@@ -30,7 +30,7 @@ services:
     container_name: anonymizer-backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-anonymizer_user}:${POSTGRES_PASSWORD:-anonymizer_password}@postgres:5432/${POSTGRES_DB:-anonymizer_db}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-anonymizer_user}:${POSTGRES_PASSWORD:-anonymizer_password}@postgres:5432/${POSTGRES_DB:-anonymizer_db}
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     volumes:
